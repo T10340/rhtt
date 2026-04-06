@@ -9,3 +9,20 @@
 
 ○ Compiling / ...
  GET / 200 in 6.2s (next.js: 5.1s, application-code: 1043ms)
+✓ Compiled in 5.3s
+○ Compiling /admin/jobs/create ...
+⨯ Error: Tiptap Error: SSR has been detected, please set `immediatelyRender` explicitly to `false` to avoid hydration mismatches.
+    at RichTextEditor (components/RichTextEditor.tsx:14:27)
+  12 |
+  13 | export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+> 14 |   const editor = useEditor({
+     |                           ^
+  15 |     extensions: [StarterKit],
+  16 |     content: value,
+  17 |     editorProps: { {
+  digest: '1207718680'
+}
+ GET /admin/jobs/create 500 in 8.6s (next.js: 7.1s, application-code: 1498ms)
+ GET /admin/jobs/create 200 in 133ms (next.js: 10ms, application-code: 123ms)
+ GET /admin/jobs/create 200 in 183ms (next.js: 8ms, application-code: 174ms)
+ GET /admin/jobs/create 200 in 130ms (next.js: 6ms, application-code: 124ms)
