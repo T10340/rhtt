@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
         <nav className="space-y-1 p-4">
           <Link
-            href="/admin"
+            href="/admin/dashboard"
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
           >
             <LayoutDashboard className="h-5 w-5" />
