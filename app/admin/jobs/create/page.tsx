@@ -51,9 +51,9 @@ const formSchema = z.object({
     message: "Veuillez sélectionner un type de contrat.",
   }),
   startDate: z.date({
-    required_error: "La date de début est requise.",
     invalid_type_error: "Format de date invalide.",
-  }),
+    required_error: "La date de début est requise.",
+  } as any),
   duration: z.string().optional(),
   salaryMin: z.string().optional(),
   salaryMax: z.string().optional(),
@@ -73,7 +73,7 @@ type FormValues = z.infer<typeof formSchema>
 
 export default function CreateJobPage() {
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       title: "",
       reference: "",
