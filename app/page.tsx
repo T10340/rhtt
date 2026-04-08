@@ -1,5 +1,4 @@
 import { Search, MapPin, User, CheckCircle2, Phone, Mail, MapPinIcon } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -310,9 +309,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500">
           <p>© {new Date().getFullYear()} RHTT Intérim. Tous droits réservés.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="/mentions-legales" className="hover:text-zinc-300 transition-colors">Mentions légales</Link>
-            <Link href="/politique-de-confidentialite" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</Link>
-            <a href="https://juyo.fr" className="hover:text-zinc-300 transition-colors">Site réalisé par l&apos;agence JUYO</a>
+            <a href="http://localhost:3000/mentions-legales" className="hover:text-zinc-300 transition-colors">Mentions légales</a>
+            <a href="http://localhost:3000/politique-de-confidentialite" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</a>
+            <a href="https://juyo.fr" className="hover:text-zinc-300 transition-colors">Site réalisé par l'agence JUYO</a>
           </div>
         </div>
       </footer>
