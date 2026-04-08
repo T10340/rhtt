@@ -91,7 +91,7 @@ export default function Home() {
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-zinc-50 group">
               <CardContent className="p-8 flex flex-col items-center justify-center space-y-4">
                 <div className="p-4 bg-orange-100 rounded-full group-hover:bg-[#F48120] transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M14 14.76V3.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v11.26l-4.29 2.15a2 2 0 0 0-1.11 1.79V22h18v-3.3a2 2 0 0 0-1.11-1.79Z"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M14 14.76V3.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v11.26l-4.29 2.15a2 2 0 0 0-1.11 1.79V22h18v-3.3a2 2 0 0 0-1.11-1.79Z" /></svg>
                 </div>
                 <h3 className="font-bold text-lg text-zinc-800">BTP</h3>
               </CardContent>
@@ -100,7 +100,7 @@ export default function Home() {
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-zinc-50 group">
               <CardContent className="p-8 flex flex-col items-center justify-center space-y-4">
                 <div className="p-4 bg-orange-100 rounded-full group-hover:bg-[#F48120] transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><rect width="16" height="20" x="4" y="2" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M12 6h.01" /><path d="M12 10h.01" /><path d="M12 14h.01" /><path d="M16 10h.01" /><path d="M16 14h.01" /><path d="M8 10h.01" /><path d="M8 14h.01" /></svg>
                 </div>
                 <h3 className="font-bold text-lg text-zinc-800">TERTIAIRE</h3>
               </CardContent>
@@ -109,7 +109,7 @@ export default function Home() {
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-zinc-50 group">
               <CardContent className="p-8 flex flex-col items-center justify-center space-y-4">
                 <div className="p-4 bg-orange-100 rounded-full group-hover:bg-[#F48120] transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="M8 14 4 10"/><path d="m14 8 4-4"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="m12 14 4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" /><path d="M8 14 4 10" /><path d="m14 8 4-4" /></svg>
                 </div>
                 <h3 className="font-bold text-lg text-zinc-800">INDUSTRIE</h3>
               </CardContent>
@@ -118,7 +118,7 @@ export default function Home() {
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-zinc-50 group">
               <CardContent className="p-8 flex flex-col items-center justify-center space-y-4">
                 <div className="p-4 bg-orange-100 rounded-full group-hover:bg-[#F48120] transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></svg>
                 </div>
                 <h3 className="font-bold text-lg text-zinc-800">TRANSPORTS</h3>
               </CardContent>
@@ -127,7 +127,7 @@ export default function Home() {
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow bg-zinc-50 group col-span-2 md:col-span-1 lg:col-span-1 mx-auto w-full max-w-[200px] lg:max-w-none">
               <CardContent className="p-8 flex flex-col items-center justify-center space-y-4">
                 <div className="p-4 bg-orange-100 rounded-full group-hover:bg-[#F48120] transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#F48120] group-hover:text-white transition-colors duration-300"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></svg>
                 </div>
                 <h3 className="font-bold text-lg text-zinc-800">ESPACES VERTS</h3>
               </CardContent>
@@ -268,7 +268,7 @@ export default function Home() {
 
             {/* Map Placeholder */}
             <div className="h-48 bg-zinc-800 rounded-lg w-full flex items-center justify-center overflow-hidden">
-                <div className="text-zinc-500 font-medium">Google Maps Integration</div>
+              <div className="text-zinc-500 font-medium">Google Maps Integration</div>
             </div>
           </div>
 
@@ -309,9 +309,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500">
           <p>© {new Date().getFullYear()} RHTT Intérim. Tous droits réservés.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-zinc-300 transition-colors">Mentions légales</a>
-            <a href="#" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</a>
-            <a href="#" className="hover:text-zinc-300 transition-colors">CGU</a>
+            <a href="http://localhost:3000/mentions-legales" className="hover:text-zinc-300 transition-colors">Mentions légales</a>
+            <a href="http://localhost:3000/politique-de-confidentialite" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</a>
+            <a href="https://juyo.fr" className="hover:text-zinc-300 transition-colors">Site réalisé par l'agence JUYO</a>
           </div>
         </div>
       </footer>
