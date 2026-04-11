@@ -1,4 +1,4 @@
-import { Search, MapPin, User, CheckCircle2, Phone, Mail, MapPinIcon } from "lucide-react";
+import { Phone, Mail, MapPinIcon, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -44,7 +44,7 @@ export default function Home() {
             <Card className="border-none shadow-md bg-white">
               <CardContent className="p-8 text-center space-y-4">
                 <p className="text-zinc-600 text-left">
-                  <strong>L'éditeur du site</strong><br /><br />
+                  <strong>L&apos;éditeur du site</strong><br /><br />
                   Siège social : 25 B avenue de la République – 77340 PONTAULT COMBAULT<br />
                   <br />
                   Téléphone : 01 60 29 00 43<br />
