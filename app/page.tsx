@@ -1,4 +1,5 @@
 import { Search, MapPin, User, CheckCircle2, Phone, Mail, MapPinIcon } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,11 +25,18 @@ export default function Home() {
           <a href="#" className="hover:text-[#F48120] transition-colors">Contact</a>
         </nav>
 
-        <div>
-          <Button variant="outline" className="text-[#643494] border-[#643494] hover:bg-purple-50 hidden sm:inline-flex rounded-lg">
-            <User className="mr-2 h-4 w-4" />
-            Accès Entreprises
-          </Button>
+        <div className="hidden sm:flex items-center gap-4">
+          <Link href="/login">
+            <Button variant="ghost" className="text-zinc-600 hover:text-orange-500 hover:bg-orange-50 rounded-lg">
+              Connexion / Inscription
+            </Button>
+          </Link>
+          <Link href="/dashboard/entreprise">
+            <Button variant="outline" className="text-[#643494] border-[#643494] hover:bg-purple-50 rounded-lg">
+              <User className="mr-2 h-4 w-4" />
+              Accès Entreprises
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -309,9 +317,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500">
           <p>© {new Date().getFullYear()} RHTT Intérim. Tous droits réservés.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="http://localhost:3000/mentions-legales" className="hover:text-zinc-300 transition-colors">Mentions légales</a>
-            <a href="http://localhost:3000/politique-de-confidentialite" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</a>
-            <a href="https://juyo.fr" className="hover:text-zinc-300 transition-colors">Site réalisé par l'agence JUYO</a>
+            <Link href="/mentions-legales" className="hover:text-zinc-300 transition-colors">Mentions légales</Link>
+            <Link href="/politique-de-confidentialite" className="hover:text-zinc-300 transition-colors">Politique de confidentialité</Link>
+            <a href="https://juyo.fr" className="hover:text-zinc-300 transition-colors">Site réalisé par l&apos;agence JUYO</a>
           </div>
         </div>
       </footer>

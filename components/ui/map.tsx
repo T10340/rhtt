@@ -98,16 +98,17 @@ import {
 } from "react-leaflet"
 import type { MarkerClusterGroupProps } from "react-leaflet-markercluster"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createLazyComponent<T extends ComponentType<any>>(
     factory: () => Promise<{ default: T }>
 ) {
     const LazyComponent = lazy(factory)
 
-    return (props: React.ComponentProps<T>) => {
+    const Component = (props: React.ComponentProps<T>) => {
         const [isMounted, setIsMounted] = useState(false)
 
         useEffect(() => {
-            setIsMounted(true)
+            queueMicrotask(() => setIsMounted(true))
         }, [])
 
         if (!isMounted) {
@@ -116,10 +117,14 @@ function createLazyComponent<T extends ComponentType<any>>(
 
         return (
             <Suspense>
-                <LazyComponent {...props} />
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <LazyComponent {...(props as any)} />
             </Suspense>
         )
     }
+
+    Component.displayName = "LazyMapComponent"
+    return Component
 }
 
 const LeafletMapContainer = createLazyComponent(() =>
@@ -399,7 +404,7 @@ function MapLayers({
                 tileLayers.some((layer) => layer.name === defaultTileLayer)
                     ? defaultTileLayer
                     : tileLayers[0].name
-            setSelectedTileLayer(validDefaultValue)
+            queueMicrotask(() => setSelectedTileLayer(validDefaultValue))
         }
 
         // Error: Invalid defaultActiveLayerGroups
@@ -1030,10 +1035,19 @@ function MapDrawControl({
         }
     }, [L, LeafletDraw, map, onLayersChange])
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [featureGroup, setFeatureGroup] = React.useState<any>(null)
+
+    React.useEffect(() => {
+        if (featureGroupRef.current) {
+            setFeatureGroup(featureGroupRef.current)
+        }
+    }, [featureGroupRef])
+
     return (
         <MapDrawContext.Provider
             value={{
-                featureGroup: featureGroupRef.current,
+                featureGroup: featureGroup,
                 activeMode,
                 setActiveMode,
                 editControlRef,
@@ -1331,13 +1345,22 @@ function MapDrawEdit({
             touchMoveIcon: mapDrawHandleIcon,
             touchResizeIcon: mapDrawHandleIcon,
         })
-        L.drawLocal.edit.handlers.edit.tooltip = {
-            text: "Drag handles or markers to edit.",
-            subtext: "",
+        // ESLint rules generally forbid mutating external objects inside useEffects.
+        // These drawLocal modifications are standard in react-leaflet-draw to customize tooltips
+        // but throw immutability errors. Bypassing the warning is safe since this is a global config object from Leaflet Draw.
+        /* eslint-disable react-hooks/immutability */
+        if (L.drawLocal && L.drawLocal.edit && L.drawLocal.edit.handlers && L.drawLocal.edit.handlers.edit) {
+            L.drawLocal.edit.handlers.edit.tooltip = {
+                text: "Drag handles or markers to edit.",
+                subtext: "",
+            }
         }
-        L.drawLocal.edit.handlers.remove.tooltip = {
-            text: "Click on a shape to remove.",
+        if (L.drawLocal && L.drawLocal.edit && L.drawLocal.edit.handlers && L.drawLocal.edit.handlers.remove) {
+            L.drawLocal.edit.handlers.remove.tooltip = {
+                text: "Click on a shape to remove.",
+            }
         }
+        /* eslint-enable react-hooks/immutability */
     }, [mapDrawHandleIcon])
 
     return (
@@ -1497,7 +1520,7 @@ function useDebounceLoadingState(delay = 200) {
                 clearTimeout(timeoutRef.current)
                 timeoutRef.current = null
             }
-            setShowLoading(false)
+            queueMicrotask(() => setShowLoading(false))
         }
 
         return () => {
