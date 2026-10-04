@@ -1,7 +1,7 @@
 const API_URL = process.env.WORDPRESS_API_URL || 'https://wp.rhtt.juyo.fr/graphql';
 
 export interface WPOffreDetails {
-  typeContrat?: string[] | string | null; // Majuscule corrigée
+  typeContrat?: string[] | string | null;
   villelocalisation?: string[] | string | null;
   salaire?: string | null;
   secteur?: string[] | string | null;
@@ -14,13 +14,15 @@ export interface WPOffreDetails {
 }
 
 export interface WPOffreNode {
+  databaseId: number;
   slug: string;
   title: string;
   detailsOffre: WPOffreDetails | null;
 }
 
 export interface FormattedJob {
-  id: string;
+  id: string; // Contiendra le format "13-slug-offre"
+  reference: string;
   title: string;
   location: string;
   contractType: string;
@@ -34,7 +36,7 @@ export interface JobDetail extends FormattedJob {
   aProposClient?: string;
   qualification?: string;
   anneesExperience?: string;
-  niveauDetude?: string;
+  niveauEtude?: string;
 }
 
 function extractValue(val: string[] | string | null | undefined, defaultValue: string): string {
@@ -49,6 +51,7 @@ export async function getJobs(): Promise<FormattedJob[]> {
     query GetOffres {
       offres(first: 50) {
         nodes {
+          databaseId
           slug
           title
           detailsOffre {
@@ -82,7 +85,6 @@ export async function getJobs(): Promise<FormattedJob[]> {
     }
 
     const result = await res.json();
-    
     if (result.errors) {
       console.error('Erreurs GraphQL dans getJobs:', result.errors);
     }
@@ -97,7 +99,9 @@ export async function getJobs(): Promise<FormattedJob[]> {
       const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
       return {
-        id: node.slug,
+        // Crée l'URL unique : ex: "13-test"
+        id: `${node.databaseId}-${node.slug}`,
+        reference: `RHTT-${node.databaseId}`,
         title: node.title,
         location,
         contractType,
@@ -111,10 +115,19 @@ export async function getJobs(): Promise<FormattedJob[]> {
   }
 }
 
-export async function getJobById(id: string): Promise<JobDetail | null> {
+export async function getJobById(param: string): Promise<JobDetail | null> {
+  // Extrait l'ID numérique au début du paramètre (ex: "13-test" donne "13")
+  const numericId = parseInt(param.split('-')[0], 10);
+
+  if (isNaN(numericId)) {
+    console.error('Identifiant d\'offre invalide:', param);
+    return null;
+  }
+
   const query = `
-    query GetOffreById($id: ID!) {
-      offre(id: $id, idType: SLUG) {
+    query GetOffreByDatabaseId($id: ID!) {
+      offre(id: $id, idType: DATABASE_ID) {
+        databaseId
         slug
         title
         detailsOffre {
@@ -142,7 +155,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query,
-        variables: { id },
+        variables: { id: numericId.toString() },
       }),
       signal: controller.signal,
       next: { revalidate: 10 },
@@ -153,13 +166,11 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
     if (!res.ok) return null;
 
     const result = await res.json();
-
     if (result.errors) {
       console.error('Erreurs GraphQL dans getJobById:', result.errors);
     }
 
     const node = result.data?.offre;
-
     if (!node) return null;
 
     const details = node.detailsOffre;
@@ -169,7 +180,8 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
     const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
     return {
-      id: node.slug,
+      id: `${node.databaseId}-${node.slug}`,
+      reference: `RHTT-${node.databaseId}`,
       title: node.title,
       location,
       contractType,
@@ -180,7 +192,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       aProposClient: details?.aproposclient || undefined,
       qualification: details?.qualification || undefined,
       anneesExperience: extractValue(details?.anneesdexperience, 'Débutant accepté'),
-      niveauDetude: details?.niveauDetude || undefined,
+      niveauEtude: details?.niveauDetude || undefined,
     };
   } catch (error) {
     console.error('Erreur getJobById:', error);

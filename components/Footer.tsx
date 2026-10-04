@@ -21,7 +21,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             <li><Link href="/" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Toutes nos offres</Link></li>
                             <li><Link href="/postuler" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Candidature spontanée</Link></li>
-                            <li><Link href="#" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Espace Intérimaire (À venir)</Link></li>
+                            <li><Link href="/espace-interimaire" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Espace Intérimaire (Portail RH)</Link></li>
                         </ul>
                     </div>
 
@@ -29,7 +29,9 @@ export default function Footer() {
                     <div>
                         <h3 className="text-lg font-bold text-white mb-4">Entreprises & Contact</h3>
                         <ul className="space-y-2">
-                            <li><Link href="#" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Recruter avec RHTT</Link></li>
+                            <li><Link href="/entreprises" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Recruter avec RHTT (Devis)</Link></li>
+                            <li><Link href="/espace-entreprise" className="text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors">Espace Entreprise (Portail Client)</Link></li>
+                            <li><Link href="/contact" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Nous contacter</Link></li>
                             <li><span className="text-gray-400 text-sm block mt-4">📍 Paris & Île-de-France</span></li>
                             <li><a href="mailto:contact@rhtt.fr" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">✉️ contact@rhtt.fr</a></li>
                         </ul>

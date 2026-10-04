@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import Link from 'next/link';
 
 export default function EntreprisesPage() {
     return (
@@ -8,9 +9,18 @@ export default function EntreprisesPage() {
             <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-8 md:py-12">
                 {/* Hero Section B2B */}
                 <section className="text-center mb-12">
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mb-3">
-                        Solutions RH sur-mesure
-                    </span>
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                            Solutions RH sur-mesure
+                        </span>
+                        <Link
+                            href="/espace-entreprise"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-full transition shadow-xs"
+                        >
+                            <span>Déjà client ? Accéder à l'Espace Entreprise</span>
+                            <span>→</span>
+                        </Link>
+                    </div>
                     <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
                         Recrutez les bons profils, <br className="hidden sm:block" />
                         <span className="text-blue-600">sans perdre de temps.</span>

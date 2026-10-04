@@ -9,8 +9,8 @@ interface PageProps {
 
 export default async function OffreDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const decodedId = decodeURIComponent(id);
-  const job = await getJobById(decodedId);
+  const decodedParam = decodeURIComponent(id);
+  const job = await getJobById(decodedParam);
 
   if (!job) {
     notFound();
@@ -29,6 +29,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
         </Link>
 
         <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm space-y-8">
+          {/* En-tête */}
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
@@ -53,6 +54,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
             </div>
           </div>
 
+          {/* Grille des critères clés */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
             <div>
               <p className="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">
@@ -75,11 +77,12 @@ export default async function OffreDetailPage({ params }: PageProps) {
                 Niveau d'études
               </p>
               <p className="text-sm font-semibold text-gray-800">
-                {job.niveauDetude || 'Non requis'}
+                {job.niveauEtude || 'Non requis'}
               </p>
             </div>
           </div>
 
+          {/* Descriptif du poste */}
           {job.descriptifPoste && (
             <section className="space-y-3">
               <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
@@ -91,6 +94,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
             </section>
           )}
 
+          {/* Profil recherché */}
           {job.profilRecherche && (
             <section className="space-y-3">
               <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
@@ -102,6 +106,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
             </section>
           )}
 
+          {/* À propos de l'entreprise */}
           {job.aProposClient && (
             <section className="space-y-3">
               <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
@@ -113,12 +118,13 @@ export default async function OffreDetailPage({ params }: PageProps) {
             </section>
           )}
 
+          {/* Pied de page avec référence agence */}
           <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
             <span className="text-xs text-gray-400 font-mono">
-              Réf : {job.id}
+              Réf : {job.reference}
             </span>
             <Link
-              href={`/postuler?offre=${encodeURIComponent(job.title)}`}
+              href={`/postuler?offre=${encodeURIComponent(job.title)}&ref=${job.reference}`}
               className="w-full sm:w-auto text-center bg-blue-600 text-white font-bold px-8 py-3.5 rounded-lg hover:bg-blue-700 active:scale-[0.99] transition-all shadow-sm"
             >
               Postuler à cette offre
