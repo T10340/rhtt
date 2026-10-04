@@ -3,7 +3,7 @@ const API_URL = process.env.WORDPRESS_API_URL || 'https://wp.rhtt.juyo.fr/graphq
 export interface WPOffreDetails {
   typeContrat?: string[] | string | null;
   villelocalisation?: string[] | string | null;
-  villeLocalisation?: string[] | string | null; // Sécurité rétrocompatible
+  villeLocalisation?: string[] | string | null;
   salaire?: string | null;
   secteur?: string[] | string | null;
   descriptifPoste?: string | null;
@@ -15,13 +15,13 @@ export interface WPOffreDetails {
 }
 
 export interface WPOffreNode {
-  id: string;
+  slug: string; // <-- On récupère le slug de l'offre (ex: "test")
   title: string;
   detailsOffre: WPOffreDetails | null;
 }
 
 export interface FormattedJob {
-  id: string;
+  id: string; // Contiendra le slug pour des URL propres
   title: string;
   location: string;
   contractType: string;
@@ -38,7 +38,6 @@ export interface JobDetail extends FormattedJob {
   niveauEtude?: string;
 }
 
-// Fonction utilitaire pour extraire proprement une valeur qu'elle soit string ou tableau
 function extractValue(val: string[] | string | null | undefined, defaultValue: string): string {
   if (Array.isArray(val)) {
     return val[0] || defaultValue;
@@ -51,7 +50,7 @@ export async function getJobs(): Promise<FormattedJob[]> {
     query GetOffres {
       offres(first: 50) {
         nodes {
-          id
+          slug
           title
           detailsOffre {
             typeContrat
@@ -65,7 +64,6 @@ export async function getJobs(): Promise<FormattedJob[]> {
   `;
 
   try {
-    // Timeout de 5s pour ne jamais bloquer le serveur Node sur Plesk
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -74,7 +72,7 @@ export async function getJobs(): Promise<FormattedJob[]> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
       signal: controller.signal,
-      next: { revalidate: 10 }, // Revalidation plus rapide pour tester
+      next: { revalidate: 10 },
     });
 
     clearTimeout(timeoutId);
@@ -84,12 +82,16 @@ export async function getJobs(): Promise<FormattedJob[]> {
       return [];
     }
 
-    const { data } = await res.json();
-    const nodes: WPOffreNode[] = data?.offres?.nodes || [];
+    const result = await res.json();
+    
+    if (result.errors) {
+      console.error('Erreurs GraphQL dans getJobs:', result.errors);
+    }
+
+    const nodes: WPOffreNode[] = result.data?.offres?.nodes || [];
 
     return nodes.map((node) => {
       const details = node.detailsOffre;
-
       const contractType = extractValue(details?.typeContrat, 'Intérim');
       const category = extractValue(details?.secteur, 'Général');
       const location = extractValue(
@@ -99,7 +101,7 @@ export async function getJobs(): Promise<FormattedJob[]> {
       const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
       return {
-        id: node.id,
+        id: node.slug, // <-- Next.js utilisera le slug pour le lien (ex: /offres/test)
         title: node.title,
         location,
         contractType,
@@ -108,16 +110,17 @@ export async function getJobs(): Promise<FormattedJob[]> {
       };
     });
   } catch (error) {
-    console.error('Erreur getJobs (timeout ou réseau):', error);
+    console.error('Erreur getJobs:', error);
     return [];
   }
 }
 
 export async function getJobById(id: string): Promise<JobDetail | null> {
+  // id contient désormais le slug envoyé par Next.js
   const query = `
     query GetOffreById($id: ID!) {
-      offre(id: $id) {
-        id
+      offre(id: $id, idType: SLUG) {
+        slug
         title
         detailsOffre {
           typeContrat
@@ -136,7 +139,6 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
   `;
 
   try {
-    // Timeout de 5s également pour la page de détail
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -155,8 +157,13 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
 
     if (!res.ok) return null;
 
-    const { data } = await res.json();
-    const node = data?.offre;
+    const result = await res.json();
+
+    if (result.errors) {
+      console.error('Erreurs GraphQL dans getJobById:', result.errors);
+    }
+
+    const node = result.data?.offre;
 
     if (!node) return null;
 
@@ -170,7 +177,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
     const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
     return {
-      id: node.id,
+      id: node.slug,
       title: node.title,
       location,
       contractType,
@@ -184,7 +191,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       niveauEtude: details?.niveauEtude || undefined,
     };
   } catch (error) {
-    console.error('Erreur getJobById (timeout ou réseau):', error);
+    console.error('Erreur getJobById:', error);
     return null;
   }
 }
