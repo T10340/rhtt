@@ -75,7 +75,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
                 Niveau d'études
               </p>
               <p className="text-sm font-semibold text-gray-800">
-                {job.niveauEtude || 'Non requis'}
+                {job.niveauDetude || 'Non requis'}
               </p>
             </div>
           </div>
