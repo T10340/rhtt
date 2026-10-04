@@ -3,6 +3,8 @@ import JobList from '@/components/JobList';
 import { getJobs } from '@/lib/wordpress';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const jobs = await getJobs();
 
