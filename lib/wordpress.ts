@@ -1,14 +1,23 @@
 const API_URL = process.env.WORDPRESS_API_URL || 'https://wp.rhtt.juyo.fr/graphql';
 
+export interface WPOffreDetails {
+  typeContrat?: string[] | string | null;
+  villelocalisation?: string[] | string | null;
+  villeLocalisation?: string[] | string | null; // Sécurité rétrocompatible
+  salaire?: string | null;
+  secteur?: string[] | string | null;
+  descriptifPoste?: string | null;
+  profilRecherche?: string | null;
+  aProposClient?: string | null;
+  qualification?: string | null;
+  anneesExperience?: string | null;
+  niveauEtude?: string | null;
+}
+
 export interface WPOffreNode {
   id: string;
   title: string;
-  detailsOffre: {
-    typeContrat: string[] | string | null;
-    villeLocalisation: string | null;
-    salaire: string | null;
-    secteur: string[] | string | null;
-  } | null;
+  detailsOffre: WPOffreDetails | null;
 }
 
 export interface FormattedJob {
@@ -20,16 +29,33 @@ export interface FormattedJob {
   category: string;
 }
 
+export interface JobDetail extends FormattedJob {
+  descriptifPoste?: string;
+  profilRecherche?: string;
+  aProposClient?: string;
+  qualification?: string;
+  anneesExperience?: string;
+  niveauEtude?: string;
+}
+
+// Fonction utilitaire pour extraire proprement une valeur qu'elle soit string ou tableau
+function extractValue(val: string[] | string | null | undefined, defaultValue: string): string {
+  if (Array.isArray(val)) {
+    return val[0] || defaultValue;
+  }
+  return val || defaultValue;
+}
+
 export async function getJobs(): Promise<FormattedJob[]> {
   const query = `
     query GetOffres {
-      offres {
+      offres(first: 50) {
         nodes {
           id
           title
           detailsOffre {
             typeContrat
-            villeLocalisation
+            villelocalisation
             salaire
             secteur
           }
@@ -41,50 +67,43 @@ export async function getJobs(): Promise<FormattedJob[]> {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
-      // ISR : revalide les données toutes les 60 secondes sans reconstruire le site
-      next: { revalidate: 60 },
+      next: { revalidate: 10 }, // Revalidation plus rapide pour tester
     });
 
     if (!res.ok) {
-      throw new Error(`Erreur HTTP WordPress: ${res.status}`);
+      console.error(`Erreur HTTP WordPress: ${res.status}`);
+      return [];
     }
 
     const { data } = await res.json();
     const nodes: WPOffreNode[] = data?.offres?.nodes || [];
 
     return nodes.map((node) => {
-      // Normalisation des champs liste ou texte
-      const rawContract = node.detailsOffre?.typeContrat;
-      const contractType = Array.isArray(rawContract)
-        ? rawContract[0] || 'Intérim'
-        : rawContract || 'Intérim';
+      const details = node.detailsOffre;
 
-      const rawCategory = node.detailsOffre?.secteur;
-      const category = Array.isArray(rawCategory)
-        ? rawCategory[0] || 'Général'
-        : rawCategory || 'Général';
+      const contractType = extractValue(details?.typeContrat, 'Intérim');
+      const category = extractValue(details?.secteur, 'Général');
+      const location = extractValue(
+        details?.villelocalisation || details?.villeLocalisation,
+        'Île-de-France'
+      );
+      const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
       return {
         id: node.id,
         title: node.title,
-        location: node.detailsOffre?.villeLocalisation || 'Île-de-France',
+        location,
         contractType,
-        salary: node.detailsOffre?.salaire || 'À négocier',
+        salary,
         category,
       };
     });
   } catch (error) {
-    console.error('Erreur lors du fetch des offres WordPress:', error);
+    console.error('Erreur getJobs:', error);
     return [];
   }
-}
-
-export interface JobDetail extends FormattedJob {
-  content?: string;
 }
 
 export async function getJobById(id: string): Promise<JobDetail | null> {
@@ -93,12 +112,17 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       offre(id: $id) {
         id
         title
-        content
         detailsOffre {
           typeContrat
-          villeLocalisation
+          villelocalisation
           salaire
           secteur
+          descriptifPoste
+          profilRecherche
+          aProposClient
+          qualification
+          anneesExperience
+          niveauEtude
         }
       }
     }
@@ -112,7 +136,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
         query,
         variables: { id },
       }),
-      next: { revalidate: 60 },
+      next: { revalidate: 10 },
     });
 
     if (!res.ok) return null;
@@ -122,24 +146,28 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
 
     if (!node) return null;
 
-    const rawContract = node.detailsOffre?.typeContrat;
-    const contractType = Array.isArray(rawContract)
-      ? rawContract[0] || 'Intérim'
-      : rawContract || 'Intérim';
-
-    const rawCategory = node.detailsOffre?.secteur;
-    const category = Array.isArray(rawCategory)
-      ? rawCategory[0] || 'Général'
-      : rawCategory || 'Général';
+    const details = node.detailsOffre;
+    const contractType = extractValue(details?.typeContrat, 'Intérim');
+    const category = extractValue(details?.secteur, 'Général');
+    const location = extractValue(
+      details?.villelocalisation || details?.villeLocalisation,
+      'Île-de-France'
+    );
+    const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
     return {
       id: node.id,
       title: node.title,
-      content: node.content,
-      location: node.detailsOffre?.villeLocalisation || 'Île-de-France',
+      location,
       contractType,
-      salary: node.detailsOffre?.salaire || 'À négocier',
+      salary,
       category,
+      descriptifPoste: details?.descriptifPoste || undefined,
+      profilRecherche: details?.profilRecherche || undefined,
+      aProposClient: details?.aProposClient || undefined,
+      qualification: details?.qualification || undefined,
+      anneesExperience: details?.anneesExperience || undefined,
+      niveauEtude: details?.niveauEtude || undefined,
     };
   } catch (error) {
     console.error('Erreur getJobById:', error);
