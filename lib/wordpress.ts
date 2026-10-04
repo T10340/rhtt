@@ -65,12 +65,19 @@ export async function getJobs(): Promise<FormattedJob[]> {
   `;
 
   try {
+    // Timeout de 5s pour ne jamais bloquer le serveur Node sur Plesk
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
+      signal: controller.signal,
       next: { revalidate: 10 }, // Revalidation plus rapide pour tester
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       console.error(`Erreur HTTP WordPress: ${res.status}`);
@@ -101,7 +108,7 @@ export async function getJobs(): Promise<FormattedJob[]> {
       };
     });
   } catch (error) {
-    console.error('Erreur getJobs:', error);
+    console.error('Erreur getJobs (timeout ou réseau):', error);
     return [];
   }
 }
@@ -129,6 +136,10 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
   `;
 
   try {
+    // Timeout de 5s également pour la page de détail
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -136,8 +147,11 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
         query,
         variables: { id },
       }),
+      signal: controller.signal,
       next: { revalidate: 10 },
     });
+
+    clearTimeout(timeoutId);
 
     if (!res.ok) return null;
 
@@ -170,7 +184,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       niveauEtude: details?.niveauEtude || undefined,
     };
   } catch (error) {
-    console.error('Erreur getJobById:', error);
+    console.error('Erreur getJobById (timeout ou réseau):', error);
     return null;
   }
 }
