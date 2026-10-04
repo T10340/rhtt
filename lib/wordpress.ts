@@ -1,27 +1,26 @@
 const API_URL = process.env.WORDPRESS_API_URL || 'https://wp.rhtt.juyo.fr/graphql';
 
 export interface WPOffreDetails {
-  typeContrat?: string[] | string | null;
+  typeContrat?: string[] | string | null; // Majuscule corrigée
   villelocalisation?: string[] | string | null;
-  villeLocalisation?: string[] | string | null;
   salaire?: string | null;
   secteur?: string[] | string | null;
-  descriptifPoste?: string | null;
-  profilRecherche?: string | null;
-  aProposClient?: string | null;
+  descriptifposte?: string | null;
+  profilrecherche?: string | null;
+  aproposclient?: string | null;
   qualification?: string | null;
-  anneesExperience?: string | null;
-  niveauEtude?: string | null;
+  anneesdexperience?: string[] | string | null;
+  niveauDetude?: string | null;
 }
 
 export interface WPOffreNode {
-  slug: string; // <-- On récupère le slug de l'offre (ex: "test")
+  slug: string;
   title: string;
   detailsOffre: WPOffreDetails | null;
 }
 
 export interface FormattedJob {
-  id: string; // Contiendra le slug pour des URL propres
+  id: string;
   title: string;
   location: string;
   contractType: string;
@@ -35,7 +34,7 @@ export interface JobDetail extends FormattedJob {
   aProposClient?: string;
   qualification?: string;
   anneesExperience?: string;
-  niveauEtude?: string;
+  niveauDetude?: string;
 }
 
 function extractValue(val: string[] | string | null | undefined, defaultValue: string): string {
@@ -94,14 +93,11 @@ export async function getJobs(): Promise<FormattedJob[]> {
       const details = node.detailsOffre;
       const contractType = extractValue(details?.typeContrat, 'Intérim');
       const category = extractValue(details?.secteur, 'Général');
-      const location = extractValue(
-        details?.villelocalisation || details?.villeLocalisation,
-        'Île-de-France'
-      );
+      const location = extractValue(details?.villelocalisation, 'Île-de-France');
       const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
       return {
-        id: node.slug, // <-- Next.js utilisera le slug pour le lien (ex: /offres/test)
+        id: node.slug,
         title: node.title,
         location,
         contractType,
@@ -116,7 +112,6 @@ export async function getJobs(): Promise<FormattedJob[]> {
 }
 
 export async function getJobById(id: string): Promise<JobDetail | null> {
-  // id contient désormais le slug envoyé par Next.js
   const query = `
     query GetOffreById($id: ID!) {
       offre(id: $id, idType: SLUG) {
@@ -127,12 +122,12 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
           villelocalisation
           salaire
           secteur
-          descriptifPoste
-          profilRecherche
-          aProposClient
+          descriptifposte
+          profilrecherche
+          aproposclient
           qualification
-          anneesExperience
-          niveauEtude
+          anneesdexperience
+          niveauDetude
         }
       }
     }
@@ -170,10 +165,7 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
     const details = node.detailsOffre;
     const contractType = extractValue(details?.typeContrat, 'Intérim');
     const category = extractValue(details?.secteur, 'Général');
-    const location = extractValue(
-      details?.villelocalisation || details?.villeLocalisation,
-      'Île-de-France'
-    );
+    const location = extractValue(details?.villelocalisation, 'Île-de-France');
     const salary = details?.salaire ? `${details.salaire} €` : 'À négocier';
 
     return {
@@ -183,12 +175,12 @@ export async function getJobById(id: string): Promise<JobDetail | null> {
       contractType,
       salary,
       category,
-      descriptifPoste: details?.descriptifPoste || undefined,
-      profilRecherche: details?.profilRecherche || undefined,
-      aProposClient: details?.aProposClient || undefined,
+      descriptifPoste: details?.descriptifposte || undefined,
+      profilRecherche: details?.profilrecherche || undefined,
+      aProposClient: details?.aproposclient || undefined,
       qualification: details?.qualification || undefined,
-      anneesExperience: details?.anneesExperience || undefined,
-      niveauEtude: details?.niveauEtude || undefined,
+      anneesExperience: extractValue(details?.anneesdexperience, 'Débutant accepté'),
+      niveauDetude: details?.niveauDetude || undefined,
     };
   } catch (error) {
     console.error('Erreur getJobById:', error);
