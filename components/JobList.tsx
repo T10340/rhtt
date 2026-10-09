@@ -202,7 +202,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Métier, compétence, mot-clé (ex: Cariste, Comptable, CACES 3)..."
-              className="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all shadow-2xs"
+              className="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet focus:bg-white transition-all shadow-2xs"
             />
             <span className="absolute left-3.5 top-3.5 text-slate-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,7 +229,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                 setSelectedDepartment(e.target.value);
                 setSelectedCity('Toutes');
               }}
-              className="w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all cursor-pointer shadow-2xs"
+              className="w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet focus:bg-white transition-all cursor-pointer shadow-2xs"
             >
               {departments.map((dept) => (
                 <option key={dept.code} value={dept.code}>
@@ -245,16 +245,16 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold transition-all cursor-pointer shadow-2xs ${
               showAdvanced || activeFiltersCount > 0
-                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                ? 'bg-rhtt-violet-50 border-rhtt-violet-200 text-rhtt-violet-700'
                 : 'border-slate-200 text-slate-700 hover:bg-slate-100 bg-white'
             }`}
           >
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-rhtt-violet" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
             <span>Filtres</span>
             {activeFiltersCount > 0 && (
-              <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-rhtt-violet text-white text-xs px-2 py-0.5 rounded-full font-bold">
                 {activeFiltersCount}
               </span>
             )}
@@ -273,7 +273,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               onClick={() => setSearchTerm(kw)}
               className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                 searchTerm.toLowerCase() === kw.toLowerCase()
-                  ? 'bg-blue-600 text-white font-bold'
+                  ? 'bg-rhtt-violet text-white font-bold'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
               }`}
             >
@@ -300,7 +300,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                   onClick={() => setSelectedCategory(cat)}
                   className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs ${
                     isSelected
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-rhtt-violet text-white shadow-xs'
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                   }`}
                 >
@@ -308,7 +308,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                   <span
                     className={`text-[11px] px-1.5 py-0.5 rounded-full ${
                       isSelected
-                        ? 'bg-blue-700 text-white'
+                        ? 'bg-rhtt-violet-800 text-white'
                         : 'bg-slate-200/80 text-slate-600'
                     }`}
                   >
@@ -337,7 +337,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                     onClick={() => setSelectedContract(type)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                       selectedContract === type
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-rhtt-violet text-white'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                     }`}
                   >
@@ -356,7 +356,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               <button
                 type="button"
                 onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                className="w-full flex items-center justify-between px-3.5 py-2 border border-slate-200 rounded-xl text-xs bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
+                className="w-full flex items-center justify-between px-3.5 py-2 border border-slate-200 rounded-xl text-xs bg-white text-left focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet shadow-2xs"
               >
                 <span className="truncate text-slate-800 font-medium">📍 {selectedCity}</span>
                 <span className="text-xs text-slate-400">▼</span>
@@ -370,7 +370,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                       value={citySearchQuery}
                       onChange={(e) => setCitySearchQuery(e.target.value)}
                       placeholder="Filtrer une ville..."
-                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-rhtt-violet"
                       autoFocus
                     />
                     <span className="absolute left-2.5 top-1.5 text-slate-400 text-xs">🔍</span>
@@ -389,7 +389,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
                             }}
                             className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
                               selectedCity === city
-                                ? 'bg-blue-600 text-white font-bold'
+                                ? 'bg-rhtt-violet text-white font-bold'
                                 : 'text-slate-700 hover:bg-slate-100'
                             }`}
                           >
@@ -452,7 +452,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet cursor-pointer shadow-2xs"
             >
               <option value="pertinence">⚡ Pertinence</option>
               <option value="recent">🕒 Plus récentes</option>
@@ -467,7 +467,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               type="button"
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg transition cursor-pointer ${
-                viewMode === 'grid' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                viewMode === 'grid' ? 'bg-white text-rhtt-violet shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Vue Grille"
             >
@@ -479,7 +479,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               type="button"
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-lg transition cursor-pointer ${
-                viewMode === 'list' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                viewMode === 'list' ? 'bg-white text-rhtt-violet shadow-2xs' : 'text-slate-600 hover:text-slate-900'
               }`}
               title="Vue Liste"
             >
@@ -499,43 +499,43 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
           <span className="text-slate-400 font-medium">Filtres appliqués :</span>
 
           {searchTerm && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rhtt-violet-50 text-rhtt-violet-800 font-semibold border border-rhtt-violet-200">
               <span>Mot-clé : "{searchTerm}"</span>
-              <button onClick={() => setSearchTerm('')} className="hover:text-blue-900 cursor-pointer">✕</button>
+              <button onClick={() => setSearchTerm('')} className="hover:text-rhtt-violet-900 cursor-pointer">✕</button>
             </span>
           )}
 
           {selectedCategory !== 'Tous' && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rhtt-violet-50 text-rhtt-violet-800 font-semibold border border-rhtt-violet-200">
               <span>Secteur : {selectedCategory}</span>
-              <button onClick={() => setSelectedCategory('Tous')} className="hover:text-blue-900 cursor-pointer">✕</button>
+              <button onClick={() => setSelectedCategory('Tous')} className="hover:text-rhtt-violet-900 cursor-pointer">✕</button>
             </span>
           )}
 
           {selectedContract !== 'Tous' && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rhtt-violet-50 text-rhtt-violet-800 font-semibold border border-rhtt-violet-200">
               <span>Contrat : {selectedContract}</span>
-              <button onClick={() => setSelectedContract('Tous')} className="hover:text-blue-900 cursor-pointer">✕</button>
+              <button onClick={() => setSelectedContract('Tous')} className="hover:text-rhtt-violet-900 cursor-pointer">✕</button>
             </span>
           )}
 
           {selectedDepartment !== 'Tous' && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rhtt-violet-50 text-rhtt-violet-800 font-semibold border border-rhtt-violet-200">
               <span>Département : {selectedDepartment}</span>
-              <button onClick={() => setSelectedDepartment('Tous')} className="hover:text-blue-900 cursor-pointer">✕</button>
+              <button onClick={() => setSelectedDepartment('Tous')} className="hover:text-rhtt-violet-900 cursor-pointer">✕</button>
             </span>
           )}
 
           {selectedCity !== 'Toutes' && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-semibold border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rhtt-violet-50 text-rhtt-violet-800 font-semibold border border-rhtt-violet-200">
               <span>Ville : {selectedCity}</span>
-              <button onClick={() => setSelectedCity('Toutes')} className="hover:text-blue-900 cursor-pointer">✕</button>
+              <button onClick={() => setSelectedCity('Toutes')} className="hover:text-rhtt-violet-900 cursor-pointer">✕</button>
             </span>
           )}
 
           <button
             onClick={resetAllFilters}
-            className="text-xs text-red-600 hover:text-red-700 font-bold ml-1 cursor-pointer underline"
+            className="text-xs text-rose-600 hover:text-rose-700 font-bold ml-1 cursor-pointer underline"
           >
             Tout effacer
           </button>
@@ -569,7 +569,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
       ) : (
         /* État vide soigné avec aide et suggestions */
         <div className="text-center py-16 px-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-2xl">
+          <div className="w-16 h-16 rounded-full bg-rhtt-orange-50 text-rhtt-orange flex items-center justify-center mx-auto text-2xl">
             🔍
           </div>
           <div>
@@ -583,7 +583,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
             <button
               type="button"
               onClick={resetAllFilters}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
+              className="px-4 py-2 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
             >
               Afficher toutes les offres ({initialJobs.length})
             </button>

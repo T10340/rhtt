@@ -7,7 +7,7 @@ export default function ContactPage() {
 
             <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
                 <div className="text-center max-w-2xl mx-auto mb-10">
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mb-3">
+                    <span className="inline-block px-3.5 py-1 bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200 text-xs font-semibold rounded-full mb-3">
                         Nous contacter
                     </span>
                     <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight mb-3">
@@ -24,9 +24,9 @@ export default function ContactPage() {
                         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm space-y-5">
                             <div>
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">Agence</h3>
-                                <p className="font-semibold text-gray-900 text-lg">RHTT Intérim</p>
+                                <p className="font-semibold text-gray-900 text-lg">RHTT Intérim & Recrutement</p>
                                 <p className="text-gray-600 text-sm mt-1">
-                                    Île-de-France<br />
+                                    Pontault-Combault | Paris<br />
                                     France
                                 </p>
                             </div>
@@ -35,11 +35,11 @@ export default function ContactPage() {
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">Coordonnées</h3>
                                 <p className="text-sm text-gray-700">
                                     <span className="font-medium text-gray-900">Téléphone :</span>{' '}
-                                    <a href="tel:0100000000" className="text-blue-600 hover:underline">01 00 00 00 00</a>
+                                    <a href="tel:0160290043" className="text-rhtt-violet hover:text-rhtt-orange font-semibold transition-colors">01 60 29 00 43</a>
                                 </p>
                                 <p className="text-sm text-gray-700 mt-1">
                                     <span className="font-medium text-gray-900">Email :</span>{' '}
-                                    <a href="mailto:contact@rhtt.fr" className="text-blue-600 hover:underline">contact@rhtt.fr</a>
+                                    <a href="mailto:contact@rhtt.fr" className="text-rhtt-violet hover:text-rhtt-orange font-semibold transition-colors">contact@rhtt.fr</a>
                                 </p>
                             </div>
 
@@ -48,7 +48,7 @@ export default function ContactPage() {
                                 <ul className="text-sm text-gray-600 space-y-1">
                                     <li className="flex justify-between">
                                         <span>Lundi - Vendredi :</span>
-                                        <span className="font-medium text-gray-900">08h30 - 18h00</span>
+                                        <span className="font-medium text-gray-900">08h00 - 17h00</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span>Samedi - Dimanche :</span>
@@ -74,7 +74,7 @@ export default function ContactPage() {
                                             id="contact-nom"
                                             required
                                             placeholder="Jean Dupont"
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none transition-colors"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                                         />
                                     </div>
                                     <div>
@@ -85,7 +85,7 @@ export default function ContactPage() {
                                             type="tel"
                                             id="contact-tel"
                                             placeholder="06 12 34 56 78"
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none transition-colors"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                                         />
                                     </div>
                                 </div>
@@ -99,7 +99,7 @@ export default function ContactPage() {
                                         id="contact-email"
                                         required
                                         placeholder="jean@exemple.fr"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none transition-colors"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                                     />
                                 </div>
 
@@ -109,7 +109,7 @@ export default function ContactPage() {
                                     </label>
                                     <select
                                         id="contact-sujet"
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-600 outline-none"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none"
                                     >
                                         <option>Question sur une offre d'emploi</option>
                                         <option>Demande d'informations entreprise</option>
@@ -127,13 +127,13 @@ export default function ContactPage() {
                                         rows={4}
                                         required
                                         placeholder="Votre message ici..."
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none transition-colors"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                                     />
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 active:scale-[0.99] transition-all shadow-sm"
+                                    className="w-full bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold py-3.5 px-6 rounded-xl active:scale-[0.98] transition-all shadow-md shadow-rhtt-orange/25"
                                 >
                                     Envoyer
                                 </button>

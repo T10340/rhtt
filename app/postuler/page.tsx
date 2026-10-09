@@ -79,7 +79,7 @@ export default function PostulerPage() {
                 id="prenom"
                 name="prenom"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                 placeholder="Jean"
               />
             </div>
@@ -92,7 +92,7 @@ export default function PostulerPage() {
                 id="nom"
                 name="nom"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                 placeholder="Dupont"
               />
             </div>
@@ -109,7 +109,7 @@ export default function PostulerPage() {
                 id="email"
                 name="email"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                 placeholder="jean.dupont@email.com"
               />
             </div>
@@ -122,7 +122,7 @@ export default function PostulerPage() {
                 id="telephone"
                 name="telephone"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-colors"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-none transition-colors"
                 placeholder="06 12 34 56 78"
               />
             </div>
@@ -152,7 +152,7 @@ export default function PostulerPage() {
                 <div className="flex text-sm text-gray-600 justify-center">
                   <label
                     htmlFor="cv-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                    className="relative cursor-pointer bg-white rounded-md font-medium text-rhtt-violet hover:text-rhtt-violet-800 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-rhtt-violet"
                   >
                     <span>Télécharger un fichier</span>
                     <input
@@ -173,7 +173,7 @@ export default function PostulerPage() {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg text-base font-bold hover:bg-blue-700 transition-colors active:scale-[0.98] shadow-sm"
+              className="w-full bg-rhtt-orange hover:bg-rhtt-orange-600 text-white px-4 py-3 rounded-xl text-base font-bold transition-all active:scale-[0.98] shadow-md shadow-rhtt-orange/25"
             >
               Envoyer ma candidature
             </button>

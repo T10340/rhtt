@@ -13,18 +13,19 @@ export default async function HomePage() {
       <Header />
 
       {/* 1. HERO SECTION */}
-      <section className="relative bg-slate-900 text-white overflow-hidden py-16 md:py-24">
-        {/* Halo décoratif discret */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative bg-slate-950 text-white overflow-hidden py-16 md:py-24">
+        {/* Halos décoratifs aux couleurs de marque */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-rhtt-violet/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 left-1/4 w-96 h-96 bg-rhtt-orange/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto px-4 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-800">
-            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-rhtt-violet-950/80 text-purple-200 border border-rhtt-violet-800/80 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-rhtt-orange animate-pulse" />
             Agence d'emploi & travail temporaire en Île-de-France
           </span>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            L'humain au cœur de vos <span className="text-blue-500">missions RH</span>.
+            L'humain au cœur de vos <span className="text-rhtt-orange">missions RH</span>.
           </h1>
 
           <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
@@ -34,13 +35,13 @@ export default async function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <a
               href="#offres"
-              className="w-full sm:w-auto px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/30 text-center"
+              className="w-full sm:w-auto px-7 py-3.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-rhtt-orange/25 text-center active:scale-98"
             >
               Consulter nos offres
             </a>
             <Link
               href="/entreprises"
-              className="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl transition-all text-center"
+              className="w-full sm:w-auto px-7 py-3.5 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-rhtt-violet-400 font-semibold rounded-xl transition-all text-center active:scale-98"
             >
               Vous êtes une entreprise ?
             </Link>
@@ -56,7 +57,7 @@ export default async function HomePage() {
             <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">D'expérience terrain</span>
           </div>
           <div>
-            <span className="block text-2xl sm:text-3xl font-black text-blue-600">24h</span>
+            <span className="block text-2xl sm:text-3xl font-black text-rhtt-orange">24h</span>
             <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">Délai de réactivité</span>
           </div>
           <div>
@@ -74,9 +75,9 @@ export default async function HomePage() {
       <section className="max-w-5xl mx-auto px-4 py-16 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Carte Candidat */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+          <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-rhtt-orange-200 shadow-sm flex flex-col justify-between space-y-6 transition-all">
             <div className="space-y-3">
-              <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-3 py-1 bg-rhtt-orange-50 text-rhtt-orange-700 border border-rhtt-orange-200 rounded-full text-xs font-bold uppercase tracking-wider">
                 Espace Candidats
               </span>
               <h2 className="text-2xl font-bold text-slate-900">Trouvez votre prochaine mission</h2>
@@ -84,23 +85,23 @@ export default async function HomePage() {
                 Des missions sélectionnées adaptées à vos qualifications avec un accompagnement administratif transparent et une rémunération sécurisée.
               </p>
               <ul className="space-y-2 text-sm text-slate-600 pt-2">
-                <li className="flex items-center gap-2">✓ Acomptes hebdomadaires sur demande</li>
-                <li className="flex items-center gap-2">✓ Suivi personnalisé par un référent unique</li>
-                <li className="flex items-center gap-2">✓ Missions régulières et tremplins CDI</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Acomptes hebdomadaires sur demande</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Suivi personnalisé par un référent unique</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Missions régulières et tremplins CDI</li>
               </ul>
             </div>
             <a
               href="#offres"
-              className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm"
+              className="block w-full py-3 text-center bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold rounded-xl transition-colors text-sm shadow-xs active:scale-98"
             >
               Voir les postes disponibles
             </a>
           </div>
 
           {/* Carte Entreprise */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+          <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-rhtt-violet-200 shadow-sm flex flex-col justify-between space-y-6 transition-all">
             <div className="space-y-3">
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200 rounded-full text-xs font-bold uppercase tracking-wider">
                 Espace Entreprises
               </span>
               <h2 className="text-2xl font-bold text-slate-900">Déléguez vos recrutements urgents</h2>
@@ -108,14 +109,14 @@ export default async function HomePage() {
                 Pic d’activité, arrêt imprévu ou recherche d'un profil spécialisé : notre vivier d'intérimaires qualifiés est opérationnel immédiatement.
               </p>
               <ul className="space-y-2 text-sm text-slate-600 pt-2">
-                <li className="flex items-center gap-2">✓ Vérification rigoureuse des habilitations (CACES, etc.)</li>
-                <li className="flex items-center gap-2">✓ Prise en charge 100% juridique et DSN</li>
-                <li className="flex items-center gap-2">✓ Interlocuteur dédié sans centrale d'appels</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Vérification rigoureuse des habilitations (CACES, etc.)</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Prise en charge 100% juridique et DSN</li>
+                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Interlocuteur dédié sans centrale d'appels</li>
               </ul>
             </div>
             <Link
               href="/entreprises"
-              className="block w-full py-3 text-center bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-colors text-sm"
+              className="block w-full py-3 text-center bg-slate-900 hover:bg-rhtt-violet text-white font-bold rounded-xl transition-colors text-sm shadow-xs active:scale-98"
             >
               Demander un devis / renfort
             </Link>
@@ -138,7 +139,7 @@ export default async function HomePage() {
               { label: 'Tertiaire & Services', desc: 'Comptabilité, administration des ventes, accueil' },
               { label: 'Industrie & Maintenance', desc: 'Techniciens de maintenance, opérateurs de ligne' },
             ].map((sector) => (
-              <div key={sector.label} className="bg-white p-5 rounded-xl border border-slate-200 text-left shadow-xs">
+              <div key={sector.label} className="bg-white p-5 rounded-xl border border-slate-200 hover:border-rhtt-violet-300 text-left shadow-xs transition-colors">
                 <h3 className="font-bold text-slate-900 text-sm mb-1">{sector.label}</h3>
                 <p className="text-xs text-slate-500 leading-normal">{sector.desc}</p>
               </div>
@@ -154,18 +155,13 @@ export default async function HomePage() {
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Offres à pourvoir</h2>
             <p className="text-sm text-slate-500">Postulez directement en ligne ou contactez notre agence.</p>
           </div>
-          <span className="text-xs font-semibold px-3 py-1 bg-slate-200 text-slate-700 rounded-full w-fit">
+          <span className="text-xs font-semibold px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-800 border border-rhtt-violet-200 rounded-full w-fit">
             {jobs.length} offre{jobs.length > 1 ? 's' : ''} active{jobs.length > 1 ? 's' : ''}
           </span>
         </div>
 
         <JobList initialJobs={jobs} />
       </section>
-
-      {/* 6. PIED DE PAGE BASIQUE */}
-      <footer className="bg-slate-950 text-slate-400 py-8 border-t border-slate-800 text-xs text-center">
-        <p>© {new Date().getFullYear()} RHTT Intérim. Tous droits réservés.</p>
-      </footer>
     </div>
   );
 }

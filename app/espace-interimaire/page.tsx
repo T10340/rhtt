@@ -87,7 +87,7 @@ export default function EspaceInterimairePage() {
               <h1 className="text-2xl md:text-3xl font-black text-slate-900">
                 Bonjour {data.prenom}
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200">
                 {data.matricule}
               </span>
             </div>
@@ -99,7 +99,7 @@ export default function EspaceInterimairePage() {
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors active:scale-[0.99] shadow-xs"
+              className="px-4 py-2.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white rounded-xl text-sm font-semibold transition-colors active:scale-[0.99] shadow-xs"
             >
               Demander un acompte
             </button>
@@ -128,7 +128,7 @@ export default function EspaceInterimairePage() {
             <span className="text-xs uppercase tracking-wider text-slate-400 font-bold block mb-1">
               Estimation IFM cumulée
             </span>
-            <span className="text-3xl font-black text-blue-600">{data.soldes.soldeIfmEstime}</span>
+            <span className="text-3xl font-black text-rhtt-violet">{data.soldes.soldeIfmEstime}</span>
             <span className="text-xs text-slate-400 block mt-1">Versée en fin de contrat</span>
           </div>
 
@@ -155,7 +155,7 @@ export default function EspaceInterimairePage() {
         {data.missionActuelle && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet-700 bg-rhtt-violet-50 border border-rhtt-violet-200 px-3 py-1 rounded-full">
                 Mission active
               </span>
               <span className="text-xs font-medium text-slate-500">
@@ -243,7 +243,7 @@ export default function EspaceInterimairePage() {
 
                   <button
                     type="button"
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 shrink-0 ml-2"
+                    className="text-xs font-semibold text-rhtt-violet hover:text-rhtt-violet-800 shrink-0 ml-2"
                   >
                     Télécharger
                   </button>
@@ -251,9 +251,9 @@ export default function EspaceInterimairePage() {
               ))}
             </div>
 
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-900 space-y-1">
+            <div className="bg-rhtt-violet-50/70 border border-rhtt-violet-100 rounded-xl p-4 text-xs text-rhtt-violet-900 space-y-1">
               <p className="font-bold">Besoin d'une attestation pôle emploi ?</p>
-              <p className="text-blue-700">Contactez directement votre chargé de recrutement pour un envoi sous 24h.</p>
+              <p className="text-rhtt-violet-700">Contactez directement votre chargé de recrutement pour un envoi sous 24h.</p>
             </div>
           </div>
         </div>
