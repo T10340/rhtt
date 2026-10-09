@@ -32,7 +32,7 @@ export default function JobCard({
     if (c.includes('stage') || c.includes('alternance')) {
       return 'bg-amber-50 text-amber-700 border-amber-200';
     }
-    return 'bg-blue-50 text-blue-700 border-blue-200'; // Intérim par défaut
+    return 'bg-rhtt-violet-50 text-rhtt-violet-700 border-rhtt-violet-200'; // Intérim aux couleurs RHTT
   };
 
   // Icône du secteur
@@ -49,7 +49,7 @@ export default function JobCard({
   // Vue LISTE
   if (viewMode === 'list') {
     return (
-      <article className="group w-full bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <article className="group w-full bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-rhtt-violet-300 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -70,7 +70,7 @@ export default function JobCard({
             </span>
           </div>
 
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+          <h3 className="text-lg font-bold text-slate-900 group-hover:text-rhtt-violet transition-colors">
             <Link href={`/offres/${id}`}>{title}</Link>
           </h3>
 
@@ -83,7 +83,7 @@ export default function JobCard({
               {location}
             </span>
             <span>•</span>
-            <span className="font-semibold text-blue-700 font-mono bg-blue-50/70 px-2 py-0.5 rounded">
+            <span className="font-semibold text-rhtt-violet-700 font-mono bg-rhtt-violet-50/80 px-2 py-0.5 rounded border border-rhtt-violet-100/60">
               💶 {salary}
             </span>
             <span>•</span>
@@ -94,7 +94,7 @@ export default function JobCard({
         <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
           <Link
             href={`/offres/${id}`}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-md active:scale-95 flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-md active:scale-95 flex items-center gap-1.5"
           >
             <span>Voir l'offre</span>
             <span>→</span>
@@ -106,7 +106,7 @@ export default function JobCard({
 
   // Vue GRILLE (Défaut)
   return (
-    <article className="group w-full bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-blue-400 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-4">
+    <article className="group w-full bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-rhtt-violet-300 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-4">
       <div className="space-y-3">
         {/* Badges d'en-tête */}
         <div className="flex items-center justify-between gap-2">
@@ -126,7 +126,7 @@ export default function JobCard({
         </div>
 
         {/* Titre */}
-        <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug line-clamp-2">
+        <h3 className="text-base font-bold text-slate-900 group-hover:text-rhtt-violet transition-colors leading-snug line-clamp-2">
           <Link href={`/offres/${id}`}>{title}</Link>
         </h3>
 
@@ -144,14 +144,14 @@ export default function JobCard({
       <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 mt-auto">
         <div className="overflow-hidden">
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Rémunération</span>
-          <span className="text-xs font-mono font-bold text-blue-700 truncate block">
+          <span className="text-xs font-mono font-bold text-rhtt-violet-700 truncate block">
             {salary}
           </span>
         </div>
 
         <Link
           href={`/offres/${id}`}
-          className="bg-blue-50 group-hover:bg-blue-600 text-blue-700 group-hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95 shadow-2xs"
+          className="bg-rhtt-orange-50 group-hover:bg-rhtt-orange text-rhtt-orange-700 group-hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95 shadow-2xs"
         >
           Consulter
         </Link>

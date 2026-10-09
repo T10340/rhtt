@@ -17,7 +17,7 @@ export default async function OffresPage() {
         <div className="border-b border-slate-200 pb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Link href="/" className="text-xs font-semibold text-blue-600 hover:text-blue-800">
+              <Link href="/" className="text-xs font-semibold text-rhtt-violet hover:text-rhtt-violet-800">
                 ← Accueil
               </Link>
               <span className="text-xs text-slate-300">/</span>
@@ -32,7 +32,7 @@ export default async function OffresPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-full whitespace-nowrap">
+            <span className="px-3.5 py-1.5 bg-rhtt-violet-50 text-rhtt-violet-800 border border-rhtt-violet-200 text-xs font-bold rounded-full whitespace-nowrap">
               {jobs.length} postes disponibles
             </span>
           </div>

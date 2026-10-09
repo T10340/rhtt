@@ -23,7 +23,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-8 md:py-12">
         <Link
           href="/"
-          className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+          className="inline-flex items-center text-sm font-semibold text-rhtt-violet hover:text-rhtt-violet-800 mb-6 transition-colors"
         >
           ← Retour aux offres
         </Link>
@@ -32,7 +32,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
           {/* En-tête */}
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+              <span className="px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200 text-xs font-bold rounded-full">
                 {job.contractType}
               </span>
               <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">
@@ -48,7 +48,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
               <span className="flex items-center gap-1 font-medium">
                 📍 {job.location}
               </span>
-              <span className="flex items-center gap-1 font-medium">
+              <span className="flex items-center gap-1 font-medium text-rhtt-violet-800 font-mono font-semibold">
                 💶 {job.salary}
               </span>
             </div>
@@ -85,7 +85,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
           {/* Descriptif du poste */}
           {job.descriptifPoste && (
             <section className="space-y-3">
-              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
+              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-rhtt-violet pl-3">
                 Descriptif du poste
               </h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
@@ -97,7 +97,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
           {/* Profil recherché */}
           {job.profilRecherche && (
             <section className="space-y-3">
-              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
+              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-rhtt-violet pl-3">
                 Profil recherché
               </h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
@@ -109,7 +109,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
           {/* À propos de l'entreprise */}
           {job.aProposClient && (
             <section className="space-y-3">
-              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">
+              <h2 className="text-lg font-bold text-gray-900 border-l-4 border-rhtt-violet pl-3">
                 À propos de l'entreprise
               </h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
@@ -125,7 +125,7 @@ export default async function OffreDetailPage({ params }: PageProps) {
             </span>
             <Link
               href={`/postuler?offre=${encodeURIComponent(job.title)}&ref=${job.reference}`}
-              className="w-full sm:w-auto text-center bg-blue-600 text-white font-bold px-8 py-3.5 rounded-lg hover:bg-blue-700 active:scale-[0.99] transition-all shadow-sm"
+              className="w-full sm:w-auto text-center bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold px-8 py-3.5 rounded-xl active:scale-[0.98] transition-all shadow-md shadow-rhtt-orange/25"
             >
               Postuler à cette offre
             </Link>
