@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useId } from 'react';
+import { useState } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -250,23 +250,38 @@ const JOB_TEMPLATES = [
 ];
 
 export default function EspaceEntreprisePage() {
-  // Navigation par onglet
-  const [activeTab, setActiveTab] = useState<'editor' | 'my-jobs' | 'candidates' | 'profile'>('editor');
+  // Navigation principale du portail
+  const [activeTab, setActiveTab] = useState<'my-jobs' | 'candidates' | 'profile'>('my-jobs');
 
-  // Liste des offres de l'entreprise
+  // Gestion des offres et candidatures
   const [jobs, setJobs] = useState<EnterpriseJobOffer[]>(INITIAL_ENTERPRISE_JOBS);
   const [applications, setApplications] = useState<CandidateApplication[]>(INITIAL_APPLICATIONS);
 
-  // État du formulaire de l'éditeur
+  // État du Pop-up Statique Multi-Étapes
+  const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [stepError, setStepError] = useState<string | null>(null);
+
+  // État de l'offre en cours d'édition
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
+
+  // Champs de l'offre
+  // ÉTAPE 1 : Poste & Type de mission
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Transport & Logistique');
   const [contractType, setContractType] = useState('Intérim');
-  const [location, setLocation] = useState('Pontault-Combault (77)');
-  const [startDate, setStartDate] = useState('');
+  const [positionsCount, setPositionsCount] = useState<number>(1);
+  const [urgency, setUrgency] = useState<'urgent' | 'normal' | 'anticipation'>('normal');
+
+  // ÉTAPE 2 : Dates, Durée de mission & Horaires
   const [isImmediateStart, setIsImmediateStart] = useState(true);
+  const [startDate, setStartDate] = useState('');
   const [duration, setDuration] = useState('3 mois renouvelable');
-  const [salaryAmount, setSalaryAmount] = useState('13,85 € - 14,50 € /h');
+  const [location, setLocation] = useState('Pontault-Combault (77)');
+  const [schedule, setSchedule] = useState('Temps plein 35h');
+
+  // ÉTAPE 3 : Rémunération & Avantages
+  const [salaryAmount, setSalaryAmount] = useState('13,85 € /h');
   const [salaryType, setSalaryType] = useState<'horaire' | 'mensuel' | 'annuel'>('horaire');
   const [salaryAdvantages, setSalaryAdvantages] = useState<string[]>([
     '+ 10% IFM',
@@ -274,21 +289,21 @@ export default function EspaceEntreprisePage() {
     'Panier repas conventionnel',
   ]);
   const [advantageInput, setAdvantageInput] = useState('');
-  const [schedule, setSchedule] = useState('Temps plein 35h');
-  const [positionsCount, setPositionsCount] = useState<number>(2);
-  const [urgency, setUrgency] = useState<'urgent' | 'normal' | 'anticipation'>('normal');
-  const [qualification, setQualification] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState('1 à 2 ans');
+
+  // ÉTAPE 4 : Missions & Profil recherché
   const [descriptifPoste, setDescriptifPoste] = useState('');
   const [profilRecherche, setProfilRecherche] = useState('');
+  const [qualification, setQualification] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState('1 à 2 ans');
 
-  // États UI (Notifications & Modal d'aperçu)
+  // Filtres et feedback
+  const [jobStatusFilter, setJobStatusFilter] = useState<'all' | 'active' | 'draft' | 'closed'>('all');
+  const [candidateJobFilter, setCandidateJobFilter] = useState<string>('all');
   const [notification, setNotification] = useState<string | null>(null);
   const [previewJob, setPreviewJob] = useState<EnterpriseJobOffer | null>(null);
-  const [candidateFilterJobId, setCandidateFilterJobId] = useState<string>('all');
 
-  // Application d'un modèle prédéfini
-  const applyTemplate = (tpl: typeof JOB_TEMPLATES[0]) => {
+  // Charger un modèle pré-défini
+  const handleLoadTemplate = (tpl: typeof JOB_TEMPLATES[0]) => {
     setTitle(tpl.title);
     setCategory(tpl.category);
     setContractType(tpl.contractType);
@@ -298,10 +313,11 @@ export default function EspaceEntreprisePage() {
     setQualification(tpl.qualification);
     setDescriptifPoste(tpl.descriptifPoste);
     setProfilRecherche(tpl.profilRecherche);
-    showNotice(`Modèle "${tpl.label}" chargé dans l'éditeur.`);
+    setStepError(null);
+    showNotice(`Modèle "${tpl.label}" chargé avec succès !`);
   };
 
-  // Réinitialiser le formulaire
+  // Réinitialiser les champs du formulaire
   const resetForm = () => {
     setEditingJobId(null);
     setTitle('');
@@ -321,6 +337,44 @@ export default function EspaceEntreprisePage() {
     setExperienceLevel('1 à 2 ans');
     setDescriptifPoste('');
     setProfilRecherche('');
+    setCurrentStep(1);
+    setStepError(null);
+  };
+
+  // Ouvrir le pop-up pour une nouvelle offre
+  const handleOpenNewOfferModal = () => {
+    resetForm();
+    setIsEditorModalOpen(true);
+  };
+
+  // Ouvrir le pop-up pour modifier une offre existante
+  const handleEditJob = (job: EnterpriseJobOffer) => {
+    setEditingJobId(job.id);
+    setTitle(job.title);
+    setCategory(job.category);
+    setContractType(job.contractType);
+    setLocation(job.location);
+    if (job.startDate === 'Dès que possible') {
+      setIsImmediateStart(true);
+      setStartDate('');
+    } else {
+      setIsImmediateStart(false);
+      setStartDate(job.startDate);
+    }
+    setDuration(job.duration);
+    setSalaryAmount(job.salary);
+    setSalaryType(job.salaryType);
+    setSalaryAdvantages(job.salaryAdvantages);
+    setSchedule(job.schedule);
+    setPositionsCount(job.positionsCount);
+    setUrgency(job.urgency);
+    setQualification(job.qualification);
+    setExperienceLevel(job.experienceLevel);
+    setDescriptifPoste(job.descriptifPoste);
+    setProfilRecherche(job.profilRecherche);
+    setCurrentStep(1);
+    setStepError(null);
+    setIsEditorModalOpen(true);
   };
 
   // Notification flash
@@ -347,35 +401,6 @@ export default function EspaceEntreprisePage() {
     }
   };
 
-  // Charger une offre existante dans l'éditeur
-  const handleEditJob = (job: EnterpriseJobOffer) => {
-    setEditingJobId(job.id);
-    setTitle(job.title);
-    setCategory(job.category);
-    setContractType(job.contractType);
-    setLocation(job.location);
-    if (job.startDate === 'Dès que possible') {
-      setIsImmediateStart(true);
-      setStartDate('');
-    } else {
-      setIsImmediateStart(false);
-      setStartDate(job.startDate);
-    }
-    setDuration(job.duration);
-    setSalaryAmount(job.salary);
-    setSalaryType(job.salaryType);
-    setSalaryAdvantages(job.salaryAdvantages);
-    setSchedule(job.schedule);
-    setPositionsCount(job.positionsCount);
-    setUrgency(job.urgency);
-    setQualification(job.qualification);
-    setExperienceLevel(job.experienceLevel);
-    setDescriptifPoste(job.descriptifPoste);
-    setProfilRecherche(job.profilRecherche);
-    setActiveTab('editor');
-    showNotice(`Édition de l'offre "${job.title}" activée.`);
-  };
-
   // Dupliquer une offre
   const handleDuplicateJob = (job: EnterpriseJobOffer) => {
     const duplicated: EnterpriseJobOffer = {
@@ -397,10 +422,53 @@ export default function EspaceEntreprisePage() {
     showNotice(`Statut de l'offre mis à jour : ${newStatus.toUpperCase()}`);
   };
 
-  // Soumission du formulaire (Publication ou Brouillon)
+  // Navigation dans le pop-up par étapes
+  const handleNextStep = () => {
+    setStepError(null);
+
+    // Validation de l'étape 1
+    if (currentStep === 1) {
+      if (!title.trim()) {
+        setStepError("Veuillez renseigner l'intitulé du poste pour continuer.");
+        return;
+      }
+      setCurrentStep(2);
+      return;
+    }
+
+    // Validation de l'étape 2
+    if (currentStep === 2) {
+      if (!location.trim()) {
+        setStepError("Veuillez renseigner la ville ou le lieu de la mission.");
+        return;
+      }
+      setCurrentStep(3);
+      return;
+    }
+
+    // Validation de l'étape 3
+    if (currentStep === 3) {
+      if (!salaryAmount.trim()) {
+        setStepError("Veuillez indiquer un montant ou une estimation de rémunération.");
+        return;
+      }
+      setCurrentStep(4);
+      return;
+    }
+  };
+
+  const handlePrevStep = () => {
+    setStepError(null);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Soumission finale de l'offre (Publication ou Brouillon)
   const handleSubmitJob = (targetStatus: 'active' | 'draft') => {
     if (!title.trim()) {
-      alert('Veuillez renseigner un intitulé de poste.');
+      setStepError("L'intitulé de poste est obligatoire.");
+      setCurrentStep(1);
       return;
     }
 
@@ -465,58 +533,64 @@ export default function EspaceEntreprisePage() {
         createdAt: new Date().toLocaleDateString('fr-FR'),
         candidaturesCount: 0,
       };
-
       setJobs([newJob, ...jobs]);
       showNotice(
         targetStatus === 'active'
-          ? `Votre offre "${newJob.title}" est maintenant EN LIGNE sur le site RHTT !`
-          : `Votre offre "${newJob.title}" a été enregistrée comme brouillon.`
+          ? `Votre offre "${newJob.title}" est publiée en direct sur le site !`
+          : `L'offre "${newJob.title}" a été sauvegardée dans vos brouillons.`
       );
     }
 
+    setIsEditorModalOpen(false);
     resetForm();
     setActiveTab('my-jobs');
   };
 
-  // Générer l'objet d'aperçu temps réel basé sur le formulaire en cours
+  // Objet pour l'aperçu candidat
   const currentFormPreviewJob: EnterpriseJobOffer = {
-    id: editingJobId || 'PREVIEW-TEMP',
-    reference: 'RHTT-ENT-PREVIEW',
-    title: title || 'Intitulé de poste (Aperçu)',
+    id: editingJobId || 'PREVIEW',
+    reference: editingJobId ? `RHTT-REF-${editingJobId}` : 'RHTT-NOUVELLE-OFFRE',
+    title: title.trim() || 'Intitulé de poste non renseigné',
     category,
     contractType,
-    location: location || 'Île-de-France',
-    startDate: isImmediateStart ? 'Dès que possible' : (startDate || 'À convenir'),
-    duration: duration || 'Durée de la mission',
+    location: location || 'Pontault-Combault (77)',
+    startDate: isImmediateStart ? 'Dès que possible' : (startDate || 'Dès que possible'),
+    duration: duration || 'Durée non spécifiée',
     salary: salaryAmount || 'Rémunération selon profil',
     salaryType,
     salaryAdvantages,
     schedule: schedule || 'Temps plein',
     positionsCount,
     urgency,
-    qualification: qualification || 'Non spécifié',
+    descriptifPoste: descriptifPoste || 'Aucune description saisie pour le moment.',
+    profilRecherche: profilRecherche || 'Aucun profil recherché saisi.',
+    qualification,
     experienceLevel,
-    descriptifPoste: descriptifPoste || "Le descriptif détaillé de la mission apparaîtra ici...",
-    profilRecherche: profilRecherche || "Les compétences et habilitations requises apparaîtront ici...",
     status: 'active',
     createdAt: new Date().toLocaleDateString('fr-FR'),
     candidaturesCount: 0,
   };
 
-  // Filtrer les candidatures selon l'offre sélectionnée
-  const filteredApplications = applications.filter((app) =>
-    candidateFilterJobId === 'all' ? true : app.jobId === candidateFilterJobId
-  );
+  // Filtrage des offres dans la liste
+  const filteredJobs = jobs.filter((j) => {
+    if (jobStatusFilter === 'all') return true;
+    return j.status === jobStatusFilter;
+  });
+
+  // Filtrage des candidatures
+  const filteredApplications = applications.filter((app) => {
+    if (candidateJobFilter === 'all') return true;
+    return app.jobId === candidateJobFilter;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       <Header />
 
       {/* ========================================================= */}
-      {/* 1. BANDEAU DE BIENVENUE / CONTEXTE ENTREPRISE CLIENTE     */}
+      {/* 1. EN-TÊTE DASHBOARD ENTREPRISE                           */}
       {/* ========================================================= */}
-      <section className="bg-slate-950 text-white border-b border-slate-900 relative overflow-hidden">
-        {/* Halos aux couleurs de marque */}
+      <section className="bg-slate-950 text-white border-b border-slate-800 relative overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-rhtt-violet/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 left-10 w-80 h-80 bg-rhtt-orange/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -550,17 +624,14 @@ export default function EspaceEntreprisePage() {
               </div>
             </div>
 
-            {/* Actions Rapides en-tête */}
+            {/* CTAs d'action rapide */}
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  resetForm();
-                  setActiveTab('editor');
-                }}
-                className="inline-flex items-center gap-2 px-5 py-3 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white rounded-xl text-sm font-bold transition shadow-lg shadow-rhtt-orange/25 active:scale-95 cursor-pointer"
+                onClick={handleOpenNewOfferModal}
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white rounded-xl text-sm font-black transition shadow-lg shadow-rhtt-orange/25 active:scale-95 cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                 </svg>
                 <span>Poster une offre d'emploi</span>
@@ -569,7 +640,7 @@ export default function EspaceEntreprisePage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('my-jobs')}
-                className="inline-flex items-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-sm font-semibold transition active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl text-sm font-semibold transition active:scale-95 cursor-pointer"
               >
                 <span>Gérer mes annonces</span>
                 <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-rhtt-violet text-white">
@@ -639,7 +710,7 @@ export default function EspaceEntreprisePage() {
             </div>
             <button
               onClick={() => setNotification(null)}
-              className="text-white/80 hover:text-white text-xs font-bold p-1"
+              className="text-white/80 hover:text-white text-xs font-bold p-1 cursor-pointer"
             >
               ✕
             </button>
@@ -648,28 +719,12 @@ export default function EspaceEntreprisePage() {
       )}
 
       {/* ========================================================= */}
-      {/* 2. BARRE D'ONGLETS DE NAVIGATION DU PORTAIL               */}
+      {/* 2. BARRE D'ONGLETS DU PORTAIL                             */}
       {/* ========================================================= */}
-      <section className="bg-white border-b border-slate-200 sticky top-18 z-40 shadow-2xs">
+      <section className="bg-white border-b border-slate-200 sticky top-18 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto no-scrollbar py-2">
             
-            <button
-              type="button"
-              onClick={() => setActiveTab('editor')}
-              className={`py-3 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer ${
-                activeTab === 'editor'
-                  ? 'bg-rhtt-violet-50 text-rhtt-violet border border-rhtt-violet-200 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              <span>✍️</span>
-              <span>{editingJobId ? "Modifier l'offre" : "Poster une offre d'emploi"}</span>
-              {editingJobId && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 text-amber-800">Édition</span>
-              )}
-            </button>
-
             <button
               type="button"
               onClick={() => setActiveTab('my-jobs')}
@@ -715,786 +770,481 @@ export default function EspaceEntreprisePage() {
               <span>Profil Entreprise & Facturation</span>
             </button>
 
+            <button
+              type="button"
+              onClick={handleOpenNewOfferModal}
+              className="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black bg-rhtt-orange/10 hover:bg-rhtt-orange/20 text-rhtt-orange border border-rhtt-orange/30 flex items-center gap-1.5 ml-auto cursor-pointer"
+            >
+              <span>+</span>
+              <span>Créer une annonce (Pop-up)</span>
+            </button>
+
           </nav>
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* 3. CONTENU PRINCIPAL SELON L'ONGLET SÉLECTIONNÉ           */}
+      {/* 3. CONTENU PRINCIPAL                                      */}
       {/* ========================================================= */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
-        {/* ------------------------------------------------------- */}
-        {/* ONGLET 1 : ÉDITEUR D'OFFRE D'EMPLOI COMPLET             */}
-        {/* ------------------------------------------------------- */}
-        {activeTab === 'editor' && (
-          <div className="space-y-8 animate-in fade-in duration-200">
-            
-            {/* Barre de contrôle de l'éditeur & Modèles rapides */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {editingJobId ? "Modifier l'offre d'emploi" : "Créer et publier une offre d'emploi"}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Remplissez les détails de la mission. Votre offre sera immédiatement visible par les candidats et prise en charge par l'équipe RHTT.
-                </p>
-              </div>
-
-              {/* Boutons d'action rapides */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setPreviewJob(currentFormPreviewJob)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>👁️</span>
-                  <span>Aperçu candidat</span>
-                </button>
-                {editingJobId && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition cursor-pointer"
-                  >
-                    Annuler l'édition
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Sélecteur de modèles fréquents */}
-            <div className="bg-rhtt-violet-50/60 border border-rhtt-violet-100 rounded-2xl p-4 sm:p-5">
-              <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet-800 block mb-2">
-                ⚡ Gagnez du temps : Charger un modèle d'offre type
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {JOB_TEMPLATES.map((tpl) => (
-                  <button
-                    key={tpl.label}
-                    type="button"
-                    onClick={() => applyTemplate(tpl)}
-                    className="px-3 py-1.5 bg-white hover:bg-rhtt-violet hover:text-white text-rhtt-violet-800 text-xs font-semibold rounded-xl border border-rhtt-violet-200 transition shadow-2xs cursor-pointer active:scale-95"
-                  >
-                    + {tpl.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* FORMULAIRE PRINCIPAL DE L'ÉDITEUR */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmitJob('active');
-              }}
-              className="space-y-6"
-            >
-              
-              {/* SECTION 1 : TITRE, SECTEUR ET CONTRAT */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-rhtt-violet text-white text-xs font-bold flex items-center justify-center">1</span>
-                  <h3 className="text-base font-bold text-slate-900">Poste & Type de mission</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Éditeur de Titre */}
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Intitulé du poste <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      required
-                      placeholder="Ex: Cariste d’entrepôt CACES 1-3-5 (H/F), Électricien tertiaire..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet transition shadow-2xs"
-                    />
-                  </div>
-
-                  {/* Secteur d'activité */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Secteur d'activité
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    >
-                      <option value="Transport & Logistique">🚚 Transport & Logistique</option>
-                      <option value="BTP & Construction">🏗️ BTP & Construction</option>
-                      <option value="Tertiaire & Services">🏢 Tertiaire & Services</option>
-                      <option value="Industrie & Maintenance">⚙️ Industrie & Maintenance</option>
-                    </select>
-                  </div>
-
-                  {/* Type de contrat */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Type de contrat
-                    </label>
-                    <select
-                      value={contractType}
-                      onChange={(e) => setContractType(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    >
-                      <option value="Intérim">Intérim (Travail Temporaire)</option>
-                      <option value="Intérim (Pré-embauche CDI)">Intérim avec tremplin CDI</option>
-                      <option value="CDD">CDD</option>
-                      <option value="CDI">CDI</option>
-                      <option value="Vacation">Vacation / Extra</option>
-                    </select>
-                  </div>
-
-                  {/* Nombre de postes & Degré d'urgence */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Nombre de postes à pourvoir
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={50}
-                      value={positionsCount}
-                      onChange={(e) => setPositionsCount(parseInt(e.target.value) || 1)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Degré d'urgence
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setUrgency('urgent')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border text-center transition ${
-                          urgency === 'urgent'
-                            ? 'bg-rose-50 border-rose-300 text-rose-700 ring-2 ring-rose-500'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        ⚡ Urgent (&lt;24h)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUrgency('normal')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border text-center transition ${
-                          urgency === 'normal'
-                            ? 'bg-blue-50 border-blue-300 text-blue-700 ring-2 ring-blue-500'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        Standard
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUrgency('anticipation')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border text-center transition ${
-                          urgency === 'anticipation'
-                            ? 'bg-purple-50 border-purple-300 text-purple-700 ring-2 ring-purple-500'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        Anticipation
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* SECTION 2 : CALENDRIER, DATES & DURÉE DE MISSION */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-rhtt-violet text-white text-xs font-bold flex items-center justify-center">2</span>
-                  <h3 className="text-base font-bold text-slate-900">Dates, Durée de mission & Horaires</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  {/* Date de début */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Date de début de mission <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <label className="flex items-center gap-2 text-xs font-bold text-slate-800 bg-slate-100 px-3 py-2 rounded-xl cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={isImmediateStart}
-                            onChange={(e) => setIsImmediateStart(e.target.checked)}
-                            className="rounded text-rhtt-violet focus:ring-rhtt-violet"
-                          />
-                          <span>Démarrage immédiat / Dès que possible</span>
-                        </label>
-                      </div>
-
-                      {!isImmediateStart && (
-                        <input
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Durée de la mission */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Durée de la mission <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      required
-                      placeholder="Ex : 1 semaine, 3 mois renouvelable, 6 mois..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    />
-                  </div>
-
-                  {/* Lieu d'affectation */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Ville / Lieu d'affectation <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      required
-                      placeholder="Ex: Pontault-Combault (77), Paris (75), Roissy (95)..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    />
-                  </div>
-
-                  {/* Organisation des horaires */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Horaires de travail
-                    </label>
-                    <input
-                      type="text"
-                      value={schedule}
-                      onChange={(e) => setSchedule(e.target.value)}
-                      placeholder="Ex: Journée (35h), 2x8 (matin/après-midi), Nuit, Week-end..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    />
-                  </div>
-
-                </div>
-              </div>
-
-              {/* SECTION 3 : ÉDITEUR DE RÉMUNÉRATION & AVANTAGES */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-rhtt-violet text-white text-xs font-bold flex items-center justify-center">3</span>
-                  <h3 className="text-base font-bold text-slate-900">Rémunération & Avantages</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  {/* Montant rémunération */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Montant ou fourchette <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={salaryAmount}
-                      onChange={(e) => setSalaryAmount(e.target.value)}
-                      required
-                      placeholder="Ex: 13,85 € - 14,50 € /h, 2 400 € / mois, À négocier..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-bold text-rhtt-violet-800 bg-rhtt-violet-50/30 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                    />
-                  </div>
-
-                  {/* Base de calcul */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Base de calcul
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSalaryType('horaire')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border transition ${
-                          salaryType === 'horaire'
-                            ? 'bg-rhtt-violet text-white border-rhtt-violet'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        Horaire (€/h)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSalaryType('mensuel')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border transition ${
-                          salaryType === 'mensuel'
-                            ? 'bg-rhtt-violet text-white border-rhtt-violet'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        Mensuel (€/mois)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSalaryType('annuel')}
-                        className={`py-2 px-2 text-xs font-bold rounded-xl border transition ${
-                          salaryType === 'annuel'
-                            ? 'bg-rhtt-violet text-white border-rhtt-violet'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        Annuel (K€)
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Avantages et primes cochables */}
-                  <div className="md:col-span-2 space-y-3">
-                    <span className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
-                      Primes & Avantages conventionnels
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        '+ 10% IFM',
-                        '+ 10% Congés Payés (ICCP)',
-                        'Panier repas conventionnel',
-                        'Indemnité transport / Navigo',
-                        'Primes d’équipe (2x8)',
-                        'Majoration heures de nuit',
-                        '13ème mois',
-                        'Prime d’habillage',
-                      ].map((adv) => {
-                        const checked = salaryAdvantages.includes(adv);
-                        return (
-                          <button
-                            key={adv}
-                            type="button"
-                            onClick={() => toggleAdvantage(adv)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
-                              checked
-                                ? 'bg-rhtt-violet-50 text-rhtt-violet-800 border-rhtt-violet-300'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
-                          >
-                            <span>{checked ? '✓' : '+'}</span>
-                            <span>{adv}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Ajout d'avantage personnalisé */}
-                    <div className="flex gap-2 max-w-md pt-1">
-                      <input
-                        type="text"
-                        value={advantageInput}
-                        onChange={(e) => setAdvantageInput(e.target.value)}
-                        placeholder="Autre prime (ex: Prime de froid 1,50€/h)..."
-                        className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-rhtt-violet"
-                      />
-                      <button
-                        type="button"
-                        onClick={addCustomAdvantage}
-                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
-                      >
-                        Ajouter
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* SECTION 4 : ÉDITEUR DE TEXTE / DESCRIPTIF DU POSTE & PROFIL RECHERCHÉ */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-xs space-y-6">
-                <div className="border-b border-slate-100 pb-3 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-rhtt-violet text-white text-xs font-bold flex items-center justify-center">4</span>
-                  <h3 className="text-base font-bold text-slate-900">Missions & Profil candidat recherché</h3>
-                </div>
-
-                <div className="space-y-6">
-                  
-                  {/* Éditeur de texte : Descriptif du poste */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Descriptif des missions & tâches quotidiennes <span className="text-rose-500">*</span>
-                    </label>
-                    <textarea
-                      rows={6}
-                      value={descriptifPoste}
-                      onChange={(e) => setDescriptifPoste(e.target.value)}
-                      required
-                      placeholder="Détaillez le rôle de l'intérimaire : opérations quotidiennes, environnement de travail, responsabilités..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm leading-relaxed text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet transition shadow-2xs font-sans"
-                    />
-                    <span className="text-[11px] text-slate-400 mt-1 block">
-                      Conseil : Décrivez 3 à 5 missions précises pour attirer les candidats les plus qualifiés.
-                    </span>
-                  </div>
-
-                  {/* Profil recherché */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                      Profil recherché, compétences & habilitations <span className="text-rose-500">*</span>
-                    </label>
-                    <textarea
-                      rows={5}
-                      value={profilRecherche}
-                      onChange={(e) => setProfilRecherche(e.target.value)}
-                      required
-                      placeholder="Précisez les qualités attendues, habilitations nécessaires (ex: CACES R489, Carte BTP, Permis CE), savoir-être..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm leading-relaxed text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet transition shadow-2xs font-sans"
-                    />
-                  </div>
-
-                  {/* Qualifications & Expérience */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                        Habilitations clés (CACES, Cartes...)
-                      </label>
-                      <input
-                        type="text"
-                        value={qualification}
-                        onChange={(e) => setQualification(e.target.value)}
-                        placeholder="Ex: CACES 1-3-5, N3P2, Habilitation BR..."
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                        Expérience minimum
-                      </label>
-                      <select
-                        value={experienceLevel}
-                        onChange={(e) => setExperienceLevel(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-rhtt-violet shadow-2xs"
-                      >
-                        <option value="Débutant accepté">Débutant accepté (Formation assurée)</option>
-                        <option value="6 mois à 1 an">6 mois à 1 an</option>
-                        <option value="1 à 2 ans">1 à 2 ans</option>
-                        <option value="3 ans et plus">3 ans et plus (Confirmé)</option>
-                        <option value="5 ans et plus">5 ans et plus (Expert)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* BARRE D'ACTIONS DE SOUMISSION */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-4 z-30">
-                <div className="text-xs text-slate-500 text-center sm:text-left">
-                  <span>ℹ️ L'offre sera visible sur la page d'accueil et le moteur de recherche RHTT.</span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewJob(currentFormPreviewJob)}
-                    className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100 transition active:scale-95 cursor-pointer"
-                  >
-                    Aperçu candidat
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSubmitJob('draft')}
-                    className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 text-xs font-bold hover:bg-slate-100 transition active:scale-95 cursor-pointer"
-                  >
-                    Sauvegarder en brouillon
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-rhtt-orange hover:bg-rhtt-orange-600 text-white text-sm font-black shadow-lg shadow-rhtt-orange/25 transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <span>🚀</span>
-                    <span>{editingJobId ? "Enregistrer les modifications" : "Publier l'offre d'emploi"}</span>
-                  </button>
-                </div>
-              </div>
-
-            </form>
+        {/* BANNIÈRE D'APPEL À L'ACTION : CRÉATION D'OFFRE EN POP-UP PAR ÉTAPES */}
+        <div className="mb-8 bg-gradient-to-r from-rhtt-violet-900 via-rhtt-violet-800 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md border border-rhtt-violet-700/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rhtt-orange text-white">
+              Recrutement express
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Publiez votre besoin en intérim, CDD ou CDI
+            </h2>
+            <p className="text-xs sm:text-sm text-purple-200 leading-relaxed">
+              Formulaire guidé étape par étape : définissez le poste, fixez la date et la durée de mission, ajustez la rémunération et validez. L'offre est traitée sous 24h par votre agence RHTT.
+            </p>
           </div>
-        )}
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button
+              type="button"
+              onClick={handleOpenNewOfferModal}
+              className="px-6 py-3.5 rounded-xl bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-black text-sm transition shadow-lg shadow-rhtt-orange/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Lancer le formulaire (4 étapes)</span>
+            </button>
+          </div>
+        </div>
 
         {/* ------------------------------------------------------- */}
-        {/* ONGLET 2 : GESTION DES ANNONCES PUBLIÉES               */}
+        {/* ONGLET : MES ANNONCES PUBLIÉES                         */}
         {/* ------------------------------------------------------- */}
         {activeTab === 'my-jobs' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Mes offres d'emploi ({jobs.length})</h2>
-                <p className="text-xs text-slate-500">Suivez le statut de vos publications et traitez les candidatures reçues.</p>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                  Mes annonces d'emploi
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Pilotez les missions en cours de recrutement et suivez les candidatures entrantes.
+                </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  resetForm();
-                  setActiveTab('editor');
-                }}
-                className="px-4 py-2.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer self-start sm:self-auto"
-              >
-                + Nouvelle offre
-              </button>
+              {/* Filtre de statut */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Statut :</span>
+                <div className="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setJobStatusFilter('all')}
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
+                      jobStatusFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600'
+                    }`}
+                  >
+                    Toutes ({jobs.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setJobStatusFilter('active')}
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
+                      jobStatusFilter === 'active' ? 'bg-white text-emerald-700 shadow-2xs font-bold' : 'text-slate-600'
+                    }`}
+                  >
+                    En ligne ({jobs.filter((j) => j.status === 'active').length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setJobStatusFilter('draft')}
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
+                      jobStatusFilter === 'draft' ? 'bg-white text-amber-700 shadow-2xs font-bold' : 'text-slate-600'
+                    }`}
+                  >
+                    Brouillons ({jobs.filter((j) => j.status === 'draft').length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setJobStatusFilter('closed')}
+                    className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
+                      jobStatusFilter === 'closed' ? 'bg-white text-slate-700 shadow-2xs font-bold' : 'text-slate-600'
+                    }`}
+                  >
+                    Clôturées ({jobs.filter((j) => j.status === 'closed').length})
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Grille des offres de l'entreprise */}
-            <div className="grid grid-cols-1 gap-4">
-              {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-rhtt-violet-300 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-5"
-                >
-                  <div className="space-y-2 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {/* Statut Badge */}
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          job.status === 'active'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : job.status === 'draft'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
-                        }`}
-                      >
-                        {job.status === 'active' ? '● En ligne' : job.status === 'draft' ? '○ Brouillon' : 'Clôturée'}
-                      </span>
-
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200">
-                        {job.contractType}
-                      </span>
-
-                      <span className="text-xs text-slate-400 font-mono">
-                        Réf : {job.reference}
-                      </span>
-
-                      <span className="text-xs text-slate-400">
-                        Créée le {job.createdAt}
-                      </span>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-slate-900">
-                      {job.title}
-                    </h3>
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
-                      <span>📍 {job.location}</span>
-                      <span>•</span>
-                      <span>🗓️ Début : <strong className="text-slate-800">{job.startDate}</strong></span>
-                      <span>•</span>
-                      <span>⏳ Durée : {job.duration}</span>
-                      <span>•</span>
-                      <span className="font-mono font-bold text-rhtt-violet-800 bg-rhtt-violet-50 px-2 py-0.5 rounded">
-                        💶 {job.salary}
-                      </span>
-                    </div>
+            {/* Grille des annonces */}
+            <div className="space-y-4">
+              {filteredJobs.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center text-2xl font-bold">
+                    📋
                   </div>
+                  <h3 className="text-lg font-bold text-slate-800">Aucune annonce trouvée</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Aucune offre ne correspond au statut sélectionné. Vous pouvez en publier une nouvelle dès maintenant.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleOpenNewOfferModal}
+                    className="px-5 py-2.5 bg-rhtt-orange text-white text-xs font-bold rounded-xl shadow-xs hover:bg-rhtt-orange-600 transition cursor-pointer"
+                  >
+                    + Créer une nouvelle offre d'emploi
+                  </button>
+                </div>
+              ) : (
+                filteredJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition space-y-4"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                      
+                      {/* En-tête de l'annonce */}
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                              job.status === 'active'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : job.status === 'draft'
+                                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                : 'bg-slate-100 text-slate-600 border-slate-300'
+                            }`}
+                          >
+                            {job.status === 'active' && '● En ligne'}
+                            {job.status === 'draft' && '○ Brouillon'}
+                            {job.status === 'closed' && '✕ Pourvue / Clôturée'}
+                          </span>
 
-                  {/* Actions & Candidatures */}
-                  <div className="flex flex-wrap items-center gap-2.5 lg:self-center border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
-                    
-                    {/* Badge candidatures */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCandidateFilterJobId(job.id);
-                        setActiveTab('candidates');
-                      }}
-                      className="px-3 py-2 bg-rhtt-orange-50 hover:bg-rhtt-orange text-rhtt-orange-800 hover:text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>👥 Candidats :</span>
-                      <span className="bg-white/80 text-slate-900 px-1.5 py-0.5 rounded-full text-[11px]">
-                        {job.candidaturesCount}
-                      </span>
-                    </button>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200">
+                            {job.contractType}
+                          </span>
 
-                    {/* Aperçu */}
-                    <button
-                      type="button"
-                      onClick={() => setPreviewJob(job)}
-                      className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer"
-                      title="Aperçu candidat"
-                    >
-                      👁️ Aperçu
-                    </button>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                            {job.category}
+                          </span>
 
-                    {/* Modifier */}
-                    <button
-                      type="button"
-                      onClick={() => handleEditJob(job)}
-                      className="px-3 py-2 bg-rhtt-violet-50 hover:bg-rhtt-violet text-rhtt-violet hover:text-white rounded-xl text-xs font-bold transition cursor-pointer"
-                    >
-                      ✏️ Modifier
-                    </button>
+                          {job.urgency === 'urgent' && (
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                              ⚡ Urgent
+                            </span>
+                          )}
 
-                    {/* Dupliquer */}
-                    <button
-                      type="button"
-                      onClick={() => handleDuplicateJob(job)}
-                      className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition cursor-pointer"
-                      title="Dupliquer l'annonce"
-                    >
-                      📋
-                    </button>
+                          <span className="text-xs text-slate-400 font-mono">
+                            Réf : {job.reference}
+                          </span>
+                        </div>
 
-                    {/* Basculer Statut */}
-                    {job.status === 'active' ? (
-                      <button
-                        type="button"
-                        onClick={() => handleToggleJobStatus(job.id, 'closed')}
-                        className="px-2.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
-                      >
-                        Clôturer
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleToggleJobStatus(job.id, 'active')}
-                        className="px-2.5 py-2 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 rounded-xl transition cursor-pointer"
-                      >
-                        Publier
-                      </button>
+                        <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                          {job.title}
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                          <span>📍 {job.location}</span>
+                          <span>•</span>
+                          <span>🗓️ Début : <strong className="text-slate-800">{job.startDate}</strong></span>
+                          <span>•</span>
+                          <span>⏳ Durée : {job.duration}</span>
+                          <span>•</span>
+                          <span>💶 Rémunération : <strong className="text-rhtt-violet-800">{job.salary}</strong></span>
+                          <span>•</span>
+                          <span>👥 {job.positionsCount} poste(s)</span>
+                        </div>
+                      </div>
+
+                      {/* Compteur de candidatures & Actions */}
+                      <div className="flex md:flex-col items-center md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCandidateJobFilter(job.id);
+                            setActiveTab('candidates');
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-rhtt-orange-50 hover:bg-rhtt-orange-100 text-rhtt-orange-900 border border-rhtt-orange-200 text-xs font-black transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>👥</span>
+                          <span>{job.candidaturesCount} candidature(s)</span>
+                        </button>
+                        <span className="text-[11px] text-slate-400">
+                          Publiée le {job.createdAt}
+                        </span>
+                      </div>
+
+                    </div>
+
+                    {/* Avantages de l'offre */}
+                    {job.salaryAdvantages.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+                        <span className="text-xs text-slate-400 font-bold mr-1">Avantages :</span>
+                        {job.salaryAdvantages.map((adv) => (
+                          <span
+                            key={adv}
+                            className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700"
+                          >
+                            ✓ {adv}
+                          </span>
+                        ))}
+                      </div>
                     )}
 
+                    {/* Barre d'actions rapides sur l'annonce */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEditJob(job)}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>✏️</span>
+                          <span>Modifier dans le pop-up</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicateJob(job)}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                        >
+                          📄 Dupliquer
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPreviewJob(job)}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                        >
+                          👁️ Aperçu candidat
+                        </button>
+                      </div>
+
+                      {/* Changer l'état */}
+                      <div className="flex items-center gap-2">
+                        {job.status === 'active' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleJobStatus(job.id, 'closed')}
+                            className="text-slate-500 hover:text-rose-600 font-semibold transition cursor-pointer"
+                          >
+                            Clôturer la mission
+                          </button>
+                        ) : job.status === 'draft' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleJobStatus(job.id, 'active')}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition cursor-pointer"
+                          >
+                            Mettre en ligne
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleJobStatus(job.id, 'active')}
+                            className="text-rhtt-violet hover:underline font-bold transition cursor-pointer"
+                          >
+                            Réactiver l'annonce
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
+
           </div>
         )}
 
         {/* ------------------------------------------------------- */}
-        {/* ONGLET 3 : CANDIDATURES REÇUES SUR LES OFFRES           */}
+        {/* ONGLET : CANDIDATURES REÇUES                            */}
         {/* ------------------------------------------------------- */}
         {activeTab === 'candidates' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Vivier de candidatures reçues</h2>
-                <p className="text-xs text-slate-500">Consultez les profils ayant postulé directement à vos offres d'emploi RHTT.</p>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                  Candidatures reçues ({filteredApplications.length})
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Profils sourcés et qualifiés par l'agence RHTT pour vos missions en cours.
+                </p>
               </div>
 
               {/* Filtre par offre */}
-              <div className="flex items-center gap-2 text-xs">
-                <span className="font-bold text-slate-500">Filtrer par poste :</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Offre :</span>
                 <select
-                  value={candidateFilterJobId}
-                  onChange={(e) => setCandidateFilterJobId(e.target.value)}
-                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rhtt-violet"
+                  value={candidateJobFilter}
+                  onChange={(e) => setCandidateJobFilter(e.target.value)}
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-rhtt-violet/20"
                 >
-                  <option value="all">Toutes les offres ({applications.length})</option>
+                  <option value="all">Toutes les offres ({applications.length} candidats)</option>
                   {jobs.map((j) => (
                     <option key={j.id} value={j.id}>
-                      {j.title}
+                      {j.title} ({j.candidaturesCount})
                     </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* Tableau des candidatures */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <tr>
-                      <th className="py-3 px-4">Candidat</th>
-                      <th className="py-3 px-4">Offre ciblée</th>
-                      <th className="py-3 px-4 hidden sm:table-cell">Qualifications</th>
-                      <th className="py-3 px-4">Date</th>
-                      <th className="py-3 px-4 text-center">Statut</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredApplications.map((app) => (
-                      <tr key={app.id} className="hover:bg-slate-50/60 transition">
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">{app.candidateName}</div>
-                          <div className="text-xs text-slate-500">{app.candidatePhone} • {app.candidateEmail}</div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="text-xs font-semibold text-rhtt-violet">{app.jobTitle}</div>
-                        </td>
-                        <td className="py-3.5 px-4 hidden sm:table-cell">
-                          <div className="text-xs text-slate-700 font-medium">{app.qualification}</div>
-                          <div className="text-[11px] text-slate-400">{app.experience}</div>
-                        </td>
-                        <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">
-                          {app.dateApplication}
-                        </td>
-                        <td className="py-3.5 px-4 text-center">
+            {/* Liste des candidatures */}
+            <div className="space-y-4">
+              {filteredApplications.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center text-xl font-bold">
+                    👥
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">Aucune candidature pour cette sélection</h3>
+                  <p className="text-xs text-slate-500">
+                    Les nouvelles candidatures apparaîtront ici dès que les intérimaires postuleront à votre offre.
+                  </p>
+                </div>
+              ) : (
+                filteredApplications.map((cand) => (
+                  <div
+                    key={cand.id}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                              app.status === 'nouveau'
-                                ? 'bg-amber-100 text-amber-800'
-                                : app.status === 'en_cours'
-                                ? 'bg-blue-100 text-blue-800'
-                                : app.status === 'retenu'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-100 text-slate-600'
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                              cand.status === 'nouveau'
+                                ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                : cand.status === 'retenu'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : cand.status === 'en_cours'
+                                ? 'bg-purple-50 text-purple-800 border-purple-200'
+                                : 'bg-slate-100 text-slate-600 border-slate-300'
                             }`}
                           >
-                            {app.status === 'nouveau' ? 'Nouveau' : app.status === 'en_cours' ? 'En revue' : 'Retenu'}
+                            {cand.status === 'nouveau' && '★ Nouveau profil'}
+                            {cand.status === 'retenu' && '✓ Candidat retenu'}
+                            {cand.status === 'en_cours' && '⏳ Entretien en cours'}
+                            {cand.status === 'refuse' && '✕ Non retenu'}
                           </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => showNotice(`Téléchargement de ${app.cvFile}...`)}
-                              className="px-2.5 py-1 text-xs font-bold text-rhtt-violet hover:bg-rhtt-violet-50 rounded-lg transition"
-                            >
-                              📄 CV
-                            </button>
-                            <a
-                              href={`tel:${app.candidatePhone}`}
-                              className="px-2.5 py-1 text-xs font-bold bg-rhtt-orange hover:bg-rhtt-orange-600 text-white rounded-lg transition"
-                            >
-                              Appeler
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+
+                          <span className="text-xs font-bold text-rhtt-violet">
+                            Offre : {cand.jobTitle}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg font-black text-slate-900">
+                          {cand.candidateName}
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                          <span>📧 {cand.candidateEmail}</span>
+                          <span>•</span>
+                          <span>📞 {cand.candidatePhone}</span>
+                          <span>•</span>
+                          <span>Postulé le {cand.dateApplication}</span>
+                        </div>
+                      </div>
+
+                      {/* Bouton de téléchargement du CV */}
+                      <button
+                        type="button"
+                        onClick={() => showNotice(`Téléchargement sécurisé du CV : ${cand.cvFile}`)}
+                        className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                      >
+                        <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Télécharger CV</span>
+                      </button>
+
+                    </div>
+
+                    {/* Qualifications & Expérience */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-xs">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span className="text-slate-400 font-bold block mb-1 uppercase tracking-wider text-[10px]">Qualifications certifiées</span>
+                        <p className="font-semibold text-slate-800">{cand.qualification}</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span className="text-slate-400 font-bold block mb-1 uppercase tracking-wider text-[10px]">Expériences significatives</span>
+                        <p className="font-semibold text-slate-800">{cand.experience}</p>
+                      </div>
+                    </div>
+
+                    {/* Actions de gestion du candidat */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setApplications(
+                              applications.map((a) => (a.id === cand.id ? { ...a, status: 'retenu' } : a))
+                            );
+                            showNotice(`Le candidat ${cand.candidateName} a été validé ! L'agence RHTT prépare le contrat.`);
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition cursor-pointer"
+                        >
+                          ✓ Valider pour la mission
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setApplications(
+                              applications.map((a) => (a.id === cand.id ? { ...a, status: 'en_cours' } : a))
+                            );
+                            showNotice(`Statut mis à jour : Entretien en cours avec ${cand.candidateName}.`);
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition cursor-pointer"
+                        >
+                          Planifier entretien
+                        </button>
+                      </div>
+
+                      <a
+                        href={`tel:${cand.candidatePhone}`}
+                        className="text-rhtt-violet hover:underline font-bold flex items-center gap-1"
+                      >
+                        <span>Appeler directement</span>
+                        <span>→</span>
+                      </a>
+                    </div>
+
+                  </div>
+                ))
+              )}
             </div>
+
           </div>
         )}
 
         {/* ------------------------------------------------------- */}
-        {/* ONGLET 4 : PROFIL RECRUTEUR & FACTURATION               */}
+        {/* ONGLET : PROFIL ENTREPRISE & FACTURATION               */}
         {/* ------------------------------------------------------- */}
         {activeTab === 'profile' && (
           <div className="space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                Fiche entreprise & Paramètres de délégation
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Informations administratives et contact privilégié RHTT pour la facturation et les contrats.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* Carte Informations société */}
-              <div className="md:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
-                  Informations de l'entreprise recruteuse
+              <div className="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                <h3 className="text-base font-black text-slate-900 border-b border-slate-100 pb-3">
+                  Renseignements légaux
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <span className="text-slate-400 font-bold block uppercase tracking-wider mb-1">Raison Sociale</span>
+                    <span className="text-slate-400 font-bold block uppercase tracking-wider mb-1">Raison sociale</span>
                     <span className="font-semibold text-slate-800 text-sm">LogistiX Hub France SAS</span>
                   </div>
                   <div>
@@ -1546,10 +1296,710 @@ export default function EspaceEntreprisePage() {
       </main>
 
       {/* ========================================================= */}
-      {/* 4. MODALE APERÇU TEMPS RÉEL (MODE CANDIDAT)               */}
+      {/* 4. POP-UP STATIQUE MULTI-ÉTAPES (ÉDITEUR D'OFFRE)         */}
+      {/* ========================================================= */}
+      {isEditorModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 my-auto flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95">
+            
+            {/* EN-TÊTE DU POP-UP */}
+            <div className="p-5 sm:p-6 bg-slate-900 text-white border-b border-slate-800 shrink-0">
+              <div className="flex items-center justify-between pb-4">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rhtt-orange text-white">
+                    {editingJobId ? 'Modification' : 'Nouvelle offre'}
+                  </span>
+                  <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                    {editingJobId ? "Modifier l'offre d'emploi" : "Poster une offre d'emploi"}
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditorModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center font-bold text-sm transition cursor-pointer"
+                  title="Fermer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* STEPPER VISUEL STATIQUE */}
+              <div className="grid grid-cols-4 gap-2 pt-2">
+                
+                {/* Étape 1 */}
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className={`text-left p-2 rounded-xl transition cursor-pointer ${
+                    currentStep === 1
+                      ? 'bg-rhtt-violet text-white shadow-xs'
+                      : currentStep > 1
+                      ? 'bg-slate-800/80 text-emerald-300 hover:bg-slate-800'
+                      : 'bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    <span className="w-4 h-4 rounded-full bg-black/30 flex items-center justify-center text-[10px]">
+                      {currentStep > 1 ? '✓' : '1'}
+                    </span>
+                    <span className="truncate">Poste</span>
+                  </div>
+                  <span className="hidden sm:block text-[10px] opacity-80 mt-0.5 truncate">
+                    Type de mission
+                  </span>
+                </button>
+
+                {/* Étape 2 */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (title.trim()) setCurrentStep(2);
+                  }}
+                  className={`text-left p-2 rounded-xl transition cursor-pointer ${
+                    currentStep === 2
+                      ? 'bg-rhtt-violet text-white shadow-xs'
+                      : currentStep > 2
+                      ? 'bg-slate-800/80 text-emerald-300 hover:bg-slate-800'
+                      : 'bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    <span className="w-4 h-4 rounded-full bg-black/30 flex items-center justify-center text-[10px]">
+                      {currentStep > 2 ? '✓' : '2'}
+                    </span>
+                    <span className="truncate">Dates & Lieu</span>
+                  </div>
+                  <span className="hidden sm:block text-[10px] opacity-80 mt-0.5 truncate">
+                    Durée & Horaires
+                  </span>
+                </button>
+
+                {/* Étape 3 */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (title.trim() && location.trim()) setCurrentStep(3);
+                  }}
+                  className={`text-left p-2 rounded-xl transition cursor-pointer ${
+                    currentStep === 3
+                      ? 'bg-rhtt-violet text-white shadow-xs'
+                      : currentStep > 3
+                      ? 'bg-slate-800/80 text-emerald-300 hover:bg-slate-800'
+                      : 'bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    <span className="w-4 h-4 rounded-full bg-black/30 flex items-center justify-center text-[10px]">
+                      {currentStep > 3 ? '✓' : '3'}
+                    </span>
+                    <span className="truncate">Salaire</span>
+                  </div>
+                  <span className="hidden sm:block text-[10px] opacity-80 mt-0.5 truncate">
+                    Primes & Avantages
+                  </span>
+                </button>
+
+                {/* Étape 4 */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (title.trim() && location.trim() && salaryAmount.trim()) setCurrentStep(4);
+                  }}
+                  className={`text-left p-2 rounded-xl transition cursor-pointer ${
+                    currentStep === 4
+                      ? 'bg-rhtt-violet text-white shadow-xs'
+                      : 'bg-slate-800/40 text-slate-400 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                    <span className="w-4 h-4 rounded-full bg-black/30 flex items-center justify-center text-[10px]">
+                      4
+                    </span>
+                    <span className="truncate">Missions</span>
+                  </div>
+                  <span className="hidden sm:block text-[10px] opacity-80 mt-0.5 truncate">
+                    Profil & Publication
+                  </span>
+                </button>
+
+              </div>
+            </div>
+
+            {/* ALERTE ERREUR ÉTAPE */}
+            {stepError && (
+              <div className="px-6 py-2.5 bg-rose-50 border-b border-rose-200 text-rose-700 text-xs font-bold flex items-center justify-between">
+                <span>⚠️ {stepError}</span>
+                <button onClick={() => setStepError(null)} className="text-rose-500 hover:text-rose-800">✕</button>
+              </div>
+            )}
+
+            {/* CORPS DU FORMULAIRE : ÉTAPE PAR ÉTAPE (CONTENEUR STATIQUE) */}
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1 min-h-[380px] space-y-6">
+              
+              {/* =================================================== */}
+              {/* ÉTAPE 1 : POSTE ET TYPE DE MISSION                  */}
+              {/* =================================================== */}
+              {currentStep === 1 && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="border-b border-slate-100 pb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet block mb-1">
+                      Étape 1 sur 4
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                      Poste et type de mission
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Renseignez l'intitulé de poste, le secteur d'activité et le type de contrat recherché.
+                    </p>
+                  </div>
+
+                  {/* Modèles d'offres en 1 clic */}
+                  <div>
+                    <span className="text-xs font-bold text-slate-600 block mb-2">
+                      Remplissage rapide (Gabarits prêts à l'emploi) :
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {JOB_TEMPLATES.map((tpl) => (
+                        <button
+                          key={tpl.label}
+                          type="button"
+                          onClick={() => handleLoadTemplate(tpl)}
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-rhtt-violet-50 hover:text-rhtt-violet hover:border-rhtt-violet-200 border border-slate-200 text-xs font-semibold text-slate-700 transition cursor-pointer"
+                        >
+                          ⚡ {tpl.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Titre du poste */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Intitulé du poste <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => {
+                        setTitle(e.target.value);
+                        if (stepError) setStepError(null);
+                      }}
+                      placeholder="Ex: Cariste d'entrepôt CACES 3 et 5 (H/F)"
+                      className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-rhtt-violet focus:border-rhtt-violet outline-hidden transition"
+                    />
+                    <div className="flex justify-between text-[11px] text-slate-400">
+                      <span>Exemple : Préparateur de commandes, Maçon Coffreur, Électromécanicien...</span>
+                      <span>{title.length} caractères</span>
+                    </div>
+                  </div>
+
+                  {/* Ligne : Secteur & Type de contrat */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Secteur d'activité / Métier
+                      </label>
+                      <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                      >
+                        <option value="Transport & Logistique">Transport & Logistique</option>
+                        <option value="BTP & Construction">BTP & Construction</option>
+                        <option value="Industrie & Maintenance">Industrie & Maintenance</option>
+                        <option value="Tertiaire & Services">Tertiaire & Services</option>
+                        <option value="Agroalimentaire & Restauration">Agroalimentaire & Restauration</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Type de contrat
+                      </label>
+                      <select
+                        value={contractType}
+                        onChange={(e) => setContractType(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                      >
+                        <option value="Intérim">Intérim (Délégation temporaire)</option>
+                        <option value="CDD">CDD (Contrat à durée déterminée)</option>
+                        <option value="CDI">CDI (Placement direct)</option>
+                        <option value="CDI Intérimaire">CDI Intérimaire (CDI-I)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Ligne : Nombre de postes & Degré d'urgence */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Nombre de postes à pourvoir
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={positionsCount}
+                        onChange={(e) => setPositionsCount(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Degré d'urgence
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setUrgency('normal')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold text-center border transition cursor-pointer ${
+                            urgency === 'normal'
+                              ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          Normal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUrgency('urgent')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold text-center border transition cursor-pointer ${
+                            urgency === 'urgent'
+                              ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          ⚡ Urgent
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUrgency('anticipation')}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold text-center border transition cursor-pointer ${
+                            urgency === 'anticipation'
+                              ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
+                              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          Anticipé
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* =================================================== */}
+              {/* ÉTAPE 2 : DATES, DURÉE DE MISSION & HORAIRES        */}
+              {/* =================================================== */}
+              {currentStep === 2 && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="border-b border-slate-100 pb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet block mb-1">
+                      Étape 2 sur 4
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                      Dates, Durée de mission & Horaires
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Précisez la date de démarrage, la durée prévisible de mission et l'organisation du temps de travail.
+                    </p>
+                  </div>
+
+                  {/* Date de démarrage */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-800">
+                        Date de début de la mission
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-rhtt-orange">
+                        <input
+                          type="checkbox"
+                          checked={isImmediateStart}
+                          onChange={(e) => setIsImmediateStart(e.target.checked)}
+                          className="w-4 h-4 rounded text-rhtt-orange focus:ring-rhtt-orange border-slate-300"
+                        />
+                        <span>Prise de poste immédiate (Dès que possible)</span>
+                      </label>
+                    </div>
+
+                    {!isImmediateStart && (
+                      <div className="pt-2 animate-in fade-in">
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Durée de la mission */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Durée de la mission
+                    </label>
+                    <input
+                      type="text"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      placeholder="Ex: 3 mois renouvelable, Mission longue 6 mois, Pic d'activité 4 semaines..."
+                      className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                    />
+                    <p className="text-[11px] text-slate-400">
+                      Indiquez la visibilité temporelle de la mission (ex: 2 semaines, 3 mois renouvelable, embauche CDI possible).
+                    </p>
+                  </div>
+
+                  {/* Lieu de la mission */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Lieu / Ville d'exécution de la mission <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={location}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        if (stepError) setStepError(null);
+                      }}
+                      placeholder="Ex: Pontault-Combault (77), Torcy (77), Roissy (95)..."
+                      className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                    />
+                  </div>
+
+                  {/* Organisation du temps de travail */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Horaires et organisation du travail
+                    </label>
+                    <input
+                      type="text"
+                      value={schedule}
+                      onChange={(e) => setSchedule(e.target.value)}
+                      placeholder="Ex: 2x8 (06h-13h30 / 13h30-21h), Temps plein 35h, Travail de nuit, Week-end..."
+                      className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                    />
+                  </div>
+
+                </div>
+              )}
+
+              {/* =================================================== */}
+              {/* ÉTAPE 3 : RÉMUNÉRATION & AVANTAGES                  */}
+              {/* =================================================== */}
+              {currentStep === 3 && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="border-b border-slate-100 pb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet block mb-1">
+                      Étape 3 sur 4
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                      Rémunération & Avantages
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Définissez la grille de rémunération et les primes conventionnelles applicables à la mission.
+                    </p>
+                  </div>
+
+                  {/* Rémunération et base */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Montant de la rémunération brute <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={salaryAmount}
+                        onChange={(e) => {
+                          setSalaryAmount(e.target.value);
+                          if (stepError) setStepError(null);
+                        }}
+                        placeholder="Ex: 13,85 € /h, 2 200 € / mois, Selon profil..."
+                        className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        Base de calcul
+                      </label>
+                      <select
+                        value={salaryType}
+                        onChange={(e) => setSalaryType(e.target.value as any)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                      >
+                        <option value="horaire">Taux horaire brut (€/h)</option>
+                        <option value="mensuel">Salaire mensuel brut (€/mois)</option>
+                        <option value="annuel">Salaire annuel brut (€/an)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Primes et avantages cochables */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Avantages et primes intérimaires (Cochez pour inclure dans l'annonce) :
+                    </label>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {[
+                        '+ 10% IFM (Indemnités de fin de mission)',
+                        '+ 10% Congés Payés (ICCP)',
+                        'Panier repas conventionnel',
+                        'Indemnités kilométriques / transport',
+                        'Primes d’équipe / panier de nuit',
+                        'Primes de productivité',
+                        '13ème mois proratisé',
+                        'Heures supplémentaires majorées',
+                      ].map((adv) => {
+                        const isChecked = salaryAdvantages.includes(adv);
+                        return (
+                          <button
+                            key={adv}
+                            type="button"
+                            onClick={() => toggleAdvantage(adv)}
+                            className={`p-2.5 rounded-xl text-xs font-bold text-left border flex items-center gap-2 transition cursor-pointer ${
+                              isChecked
+                                ? 'bg-rhtt-violet-50 text-rhtt-violet-900 border-rhtt-violet-300 shadow-2xs'
+                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span
+                              className={`w-4 h-4 rounded flex items-center justify-center text-[10px] ${
+                                isChecked ? 'bg-rhtt-violet text-white' : 'border border-slate-300'
+                              }`}
+                            >
+                              {isChecked && '✓'}
+                            </span>
+                            <span>{adv}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Ajout d'avantage personnalisé */}
+                  <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Ajouter un avantage spécifique
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={advantageInput}
+                        onChange={(e) => setAdvantageInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addCustomAdvantage();
+                          }
+                        }}
+                        placeholder="Ex: Mutuelle d'entreprise prise en charge à 70%, Titres restaurant..."
+                        className="flex-1 px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 outline-hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={addCustomAdvantage}
+                        className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                      >
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* =================================================== */}
+              {/* ÉTAPE 4 : MISSIONS & PROFIL RECHERCHÉ               */}
+              {/* =================================================== */}
+              {currentStep === 4 && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="border-b border-slate-100 pb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-rhtt-violet block mb-1">
+                      Étape 4 sur 4
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                      Missions & Profil recherché
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Détaillez les tâches quotidiennes confiées au candidat et les compétences requises.
+                    </p>
+                  </div>
+
+                  {/* Descriptif des missions */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Description des missions & Tâches confiées
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={descriptifPoste}
+                      onChange={(e) => setDescriptifPoste(e.target.value)}
+                      placeholder="Détaillez les activités : déchargement, préparation, conduite d'engins, gestion d'équipe..."
+                      className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Profil recherché */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Profil recherché, qualifications & Habilitations requises
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={profilRecherche}
+                      onChange={(e) => setProfilRecherche(e.target.value)}
+                      placeholder="Ex: CACES 1-3-5 valides, Carte BTP, rigueur, ponctualité, permis B..."
+                      className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-rhtt-violet outline-hidden leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Ligne Expérience */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Expérience minimale requise
+                    </label>
+                    <select
+                      value={experienceLevel}
+                      onChange={(e) => setExperienceLevel(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-rhtt-violet outline-hidden"
+                    >
+                      <option value="Débutant accepté">Débutant motivé accepté</option>
+                      <option value="1 à 2 ans">1 à 2 ans d'expérience</option>
+                      <option value="3 à 5 ans">3 à 5 ans d'expérience</option>
+                      <option value="5 ans et plus">Profil senior (5 ans et plus)</option>
+                    </select>
+                  </div>
+
+                  {/* Récapitulatif express de l'offre */}
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                        Synthèse de votre offre
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewJob(currentFormPreviewJob)}
+                        className="text-rhtt-violet font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>👁️ Voir l'aperçu candidat</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px] text-slate-600">
+                      <div>
+                        <span className="text-slate-400 block">Poste :</span>
+                        <strong className="text-slate-800 truncate block">{title || 'Non spécifié'}</strong>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Contrat :</span>
+                        <strong className="text-slate-800">{contractType}</strong>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Lieu :</span>
+                        <strong className="text-slate-800 truncate block">{location}</strong>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Salaire :</span>
+                        <strong className="text-rhtt-violet-800">{salaryAmount}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+
+            {/* PIED DU POP-UP (BOUTONS DE NAVIGATION & ACTIONS FINALES) */}
+            <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              
+              {/* Bouton Précédent */}
+              <div>
+                {currentStep > 1 ? (
+                  <button
+                    type="button"
+                    onClick={handlePrevStep}
+                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-300 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>←</span>
+                    <span>Étape précédente</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditorModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Annuler
+                  </button>
+                )}
+              </div>
+
+              {/* Bouton Suivant / Actions Finales */}
+              <div className="flex flex-wrap items-center gap-2">
+                
+                {/* Bouton aperçu candidat accessible à toutes les étapes */}
+                <button
+                  type="button"
+                  onClick={() => setPreviewJob(currentFormPreviewJob)}
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-200/80 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                  title="Voir la fiche telle qu'elle apparaîtra aux candidats"
+                >
+                  <span>👁️</span>
+                  <span className="hidden sm:inline">Aperçu candidat</span>
+                </button>
+
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    className="px-6 py-2.5 rounded-xl bg-rhtt-violet hover:bg-rhtt-violet-800 text-white text-xs font-black shadow-md shadow-rhtt-violet/20 transition flex items-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    <span>Étape suivante</span>
+                    <span>→</span>
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleSubmitJob('draft')}
+                      className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-300 transition cursor-pointer"
+                    >
+                      Enregistrer brouillon
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSubmitJob('active')}
+                      className="px-6 py-2.5 rounded-xl bg-rhtt-orange hover:bg-rhtt-orange-600 text-white text-xs font-black shadow-lg shadow-rhtt-orange/30 transition flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Publier l'offre sur le site</span>
+                    </button>
+                  </>
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 5. MODALE APERÇU TEMPS RÉEL (MODE CANDIDAT)               */}
       {/* ========================================================= */}
       {previewJob && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 my-8 max-h-[90vh] overflow-y-auto">
             
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
@@ -1564,7 +2014,7 @@ export default function EspaceEntreprisePage() {
               <button
                 type="button"
                 onClick={() => setPreviewJob(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 text-sm font-bold"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 text-sm font-bold cursor-pointer"
               >
                 ✕
               </button>
