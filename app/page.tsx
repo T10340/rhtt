@@ -1,5 +1,7 @@
 import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
 import JobList from '@/components/JobList';
+import Footer from '@/components/Footer';
 import { getJobs } from '@/lib/wordpress';
 import Link from 'next/link';
 
@@ -12,111 +14,71 @@ export default async function HomePage() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Header />
 
-      {/* 1. HERO SECTION */}
-      <section className="relative bg-slate-950 text-white overflow-hidden py-16 md:py-24">
-        {/* Halos décoratifs aux couleurs de marque */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-rhtt-violet/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 left-1/4 w-96 h-96 bg-rhtt-orange/20 rounded-full blur-3xl pointer-events-none" />
+      {/* 1. NOUVEAU HERO SECTION CONFORME AUX MOCKUPS (MOBILE-FIRST) */}
+      <HeroSection />
 
-        <div className="relative max-w-5xl mx-auto px-4 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-rhtt-violet-950/80 text-purple-200 border border-rhtt-violet-800/80 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-rhtt-orange animate-pulse" />
-            Agence d'emploi & travail temporaire en Île-de-France
-          </span>
-
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            L'humain au cœur de vos <span className="text-rhtt-orange">missions RH</span>.
-          </h1>
-
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Spécialiste du recrutement temporaire et permanent dans le BTP, le transport, la logistique et le tertiaire. Réactivité, proximité et engagement terrain.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <a
-              href="#offres"
-              className="w-full sm:w-auto px-7 py-3.5 bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-rhtt-orange/25 text-center active:scale-98"
-            >
-              Consulter nos offres
-            </a>
-            <Link
-              href="/entreprises"
-              className="w-full sm:w-auto px-7 py-3.5 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-rhtt-violet-400 font-semibold rounded-xl transition-all text-center active:scale-98"
-            >
-              Vous êtes une entreprise ?
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. BANDEAU DE STATS / PREUVES SOCIALES */}
-      <section className="bg-white border-y border-slate-200 py-8">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div>
-            <span className="block text-2xl sm:text-3xl font-black text-slate-900">+25 ans</span>
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">D'expérience terrain</span>
-          </div>
-          <div>
-            <span className="block text-2xl sm:text-3xl font-black text-rhtt-orange">24h</span>
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">Délai de réactivité</span>
-          </div>
-          <div>
-            <span className="block text-2xl sm:text-3xl font-black text-slate-900">10 000+</span>
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">Missions déléguées</span>
-          </div>
-          <div>
-            <span className="block text-2xl sm:text-3xl font-black text-slate-900">98%</span>
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-medium">Clients fidélisés</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. DOUBLE ACCÈS CIBLÉ (CANDIDATS VS CLIENTS) */}
-      <section className="max-w-5xl mx-auto px-4 py-16 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* 2. DOUBLE ACCÈS CIBLÉ (CANDIDATS VS CLIENTS) */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {/* Carte Candidat */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-rhtt-orange-200 shadow-sm flex flex-col justify-between space-y-6 transition-all">
+          <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 hover:border-[#0062FF]/40 shadow-xs hover:shadow-md flex flex-col justify-between space-y-6 transition-all">
             <div className="space-y-3">
-              <span className="px-3 py-1 bg-rhtt-orange-50 text-rhtt-orange-700 border border-rhtt-orange-200 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-3 py-1 bg-blue-50 text-[#0062FF] border border-blue-200 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
                 Espace Candidats
               </span>
-              <h2 className="text-2xl font-bold text-slate-900">Trouvez votre prochaine mission</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Trouvez votre prochaine mission
+              </h2>
               <p className="text-slate-600 text-sm leading-relaxed">
                 Des missions sélectionnées adaptées à vos qualifications avec un accompagnement administratif transparent et une rémunération sécurisée.
               </p>
               <ul className="space-y-2 text-sm text-slate-600 pt-2">
-                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Acomptes hebdomadaires sur demande</li>
-                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Suivi personnalisé par un référent unique</li>
-                <li className="flex items-center gap-2"><span className="text-rhtt-orange font-bold">✓</span> Missions régulières et tremplins CDI</li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[#0062FF] font-bold">✓</span> Acomptes hebdomadaires sur demande
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[#0062FF] font-bold">✓</span> Suivi personnalisé par un référent unique
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[#0062FF] font-bold">✓</span> Missions régulières et tremplins CDI
+                </li>
               </ul>
             </div>
             <a
               href="#offres"
-              className="block w-full py-3 text-center bg-rhtt-orange hover:bg-rhtt-orange-600 text-white font-bold rounded-xl transition-colors text-sm shadow-xs active:scale-98"
+              className="block w-full py-3.5 text-center bg-[#0062FF] hover:bg-[#0052D9] text-white font-bold rounded-xl transition-colors text-sm shadow-sm active:scale-98"
             >
               Voir les postes disponibles
             </a>
           </div>
 
           {/* Carte Entreprise */}
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-rhtt-violet-200 shadow-sm flex flex-col justify-between space-y-6 transition-all">
+          <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 hover:border-slate-400 shadow-xs hover:shadow-md flex flex-col justify-between space-y-6 transition-all">
             <div className="space-y-3">
-              <span className="px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-700 border border-rhtt-violet-200 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-3 py-1 bg-slate-100 text-slate-800 border border-slate-300 rounded-full text-xs font-bold uppercase tracking-wider inline-block">
                 Espace Entreprises
               </span>
-              <h2 className="text-2xl font-bold text-slate-900">Déléguez vos recrutements urgents</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Déléguez vos recrutements urgents
+              </h2>
               <p className="text-slate-600 text-sm leading-relaxed">
                 Pic d’activité, arrêt imprévu ou recherche d'un profil spécialisé : notre vivier d'intérimaires qualifiés est opérationnel immédiatement.
               </p>
               <ul className="space-y-2 text-sm text-slate-600 pt-2">
-                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Vérification rigoureuse des habilitations (CACES, etc.)</li>
-                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Prise en charge 100% juridique et DSN</li>
-                <li className="flex items-center gap-2"><span className="text-rhtt-violet font-bold">✓</span> Interlocuteur dédié sans centrale d'appels</li>
+                <li className="flex items-center gap-2">
+                  <span className="text-slate-900 font-bold">✓</span> Vérification rigoureuse des habilitations (CACES, etc.)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-slate-900 font-bold">✓</span> Prise en charge 100% juridique et DSN
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-slate-900 font-bold">✓</span> Interlocuteur dédié sans centrale d'appels
+                </li>
               </ul>
             </div>
             <Link
               href="/entreprises"
-              className="block w-full py-3 text-center bg-slate-900 hover:bg-rhtt-violet text-white font-bold rounded-xl transition-colors text-sm shadow-xs active:scale-98"
+              className="block w-full py-3.5 text-center bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-colors text-sm shadow-sm active:scale-98"
             >
               Demander un devis / renfort
             </Link>
@@ -124,11 +86,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 4. SECTEURS D'ACTIVITÉ */}
-      <section className="bg-slate-100/70 border-t border-slate-200 py-14">
-        <div className="max-w-5xl mx-auto px-4">
+      {/* 3. SECTEURS D'ACTIVITÉ */}
+      <section className="bg-white border-y border-slate-200/70 py-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
-            <h2 className="text-2xl font-bold text-slate-900">Nos domaines d'intervention</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Nos domaines d'intervention</h2>
             <p className="text-sm text-slate-600">Des profils ciblés pour répondre aux exigences techniques de chaque secteur.</p>
           </div>
 
@@ -139,7 +101,7 @@ export default async function HomePage() {
               { label: 'Tertiaire & Services', desc: 'Comptabilité, administration des ventes, accueil' },
               { label: 'Industrie & Maintenance', desc: 'Techniciens de maintenance, opérateurs de ligne' },
             ].map((sector) => (
-              <div key={sector.label} className="bg-white p-5 rounded-xl border border-slate-200 hover:border-rhtt-violet-300 text-left shadow-xs transition-colors">
+              <div key={sector.label} className="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80 hover:border-[#0062FF]/40 text-left shadow-xs transition-colors">
                 <h3 className="font-bold text-slate-900 text-sm mb-1">{sector.label}</h3>
                 <p className="text-xs text-slate-500 leading-normal">{sector.desc}</p>
               </div>
@@ -148,20 +110,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5. LISTE DYNAMIQUE DES OFFRES (Le moteur actuel) */}
-      <section id="offres" className="flex-1 max-w-5xl mx-auto px-4 py-16 w-full scroll-mt-6">
+      {/* 4. LISTE DYNAMIQUE DES OFFRES */}
+      <section id="offres" className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-16 w-full scroll-mt-6">
         <div className="border-b border-slate-200 pb-4 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Offres à pourvoir</h2>
             <p className="text-sm text-slate-500">Postulez directement en ligne ou contactez notre agence.</p>
           </div>
-          <span className="text-xs font-semibold px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-800 border border-rhtt-violet-200 rounded-full w-fit">
+          <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-[#0062FF] border border-blue-200 rounded-full w-fit">
             {jobs.length} offre{jobs.length > 1 ? 's' : ''} active{jobs.length > 1 ? 's' : ''}
           </span>
         </div>
 
         <JobList initialJobs={jobs} />
       </section>
+
+      {/* 5. FOOTER */}
+      <Footer />
     </div>
   );
 }
