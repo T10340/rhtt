@@ -13,6 +13,7 @@ type SortOption = 'pertinence' | 'recent' | 'salaire_desc' | 'alpha_asc';
 export default function JobList({ initialJobs = [] }: JobListProps) {
   // États de recherche et de filtres
   const [searchTerm, setSearchTerm] = useState('');
+  const [locationTerm, setLocationTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tous');
   const [selectedContract, setSelectedContract] = useState('Tous');
   const [selectedDepartment, setSelectedDepartment] = useState('Tous');
@@ -57,6 +58,36 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
   // Suggestions de mots-clés populaires
   const popularKeywords = ['Cariste', 'Préparateur', 'Comptable', 'Électricien', 'BTP', 'CDI'];
 
+  // Écoute de l'événement personnalisé déclenché depuis le module de recherche du Hero
+  useEffect(() => {
+    const handleJobSearch = (e: Event) => {
+      const customEvent = e as CustomEvent<{ metier?: string; loc?: string }>;
+      if (customEvent.detail) {
+        if (typeof customEvent.detail.metier === 'string') {
+          setSearchTerm(customEvent.detail.metier);
+        }
+        if (typeof customEvent.detail.loc === 'string') {
+          setLocationTerm(customEvent.detail.loc);
+        }
+      }
+    };
+
+    window.addEventListener('rhtt:filter-jobs', handleJobSearch);
+
+    // Initialisation depuis l'URL au montage
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlMetier = params.get('metier') || params.get('q');
+      const urlLoc = params.get('loc') || params.get('localisation');
+      if (urlMetier) setSearchTerm(urlMetier);
+      if (urlLoc) setLocationTerm(urlLoc);
+    }
+
+    return () => {
+      window.removeEventListener('rhtt:filter-jobs', handleJobSearch);
+    };
+  }, []);
+
   // Fermeture du dropdown lors d'un clic en dehors
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -94,38 +125,53 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
   // Filtrage combiné en temps réel
   const filteredJobs = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const locQuery = locationTerm.trim().toLowerCase();
 
     return initialJobs.filter((job) => {
-      // 1. Mot-clé (Titre, Localisation, Catégorie, Référence)
+      // 1. Mot-clé Métier (Titre, Localisation, Catégorie, Référence)
       const matchSearch =
         !query ||
         job.title.toLowerCase().includes(query) ||
-        job.location.toLowerCase().includes(query) ||
         job.category.toLowerCase().includes(query) ||
         job.reference.toLowerCase().includes(query) ||
-        job.contractType.toLowerCase().includes(query);
+        job.contractType.toLowerCase().includes(query) ||
+        job.location.toLowerCase().includes(query);
 
-      // 2. Secteur
+      // 2. Filtre Localisation rapide
+      let matchLocation = true;
+      if (locQuery) {
+        if (locQuery === '75' || locQuery.includes('paris')) {
+          matchLocation = job.location.toLowerCase().includes('paris') || job.location.includes('(75)');
+        } else if (/^\d{2}$/.test(locQuery)) {
+          matchLocation = job.location.includes(`(${locQuery})`);
+        } else if (locQuery.includes('île-de-france') || locQuery.includes('ile-de-france')) {
+          matchLocation = true;
+        } else {
+          matchLocation = job.location.toLowerCase().includes(locQuery);
+        }
+      }
+
+      // 3. Secteur
       const matchCategory =
         selectedCategory === 'Tous' || job.category === selectedCategory;
 
-      // 3. Contrat
+      // 4. Contrat
       const matchContract =
         selectedContract === 'Tous' || job.contractType === selectedContract;
 
-      // 4. Localisation précise
+      // 5. Localisation précise
       const matchCity =
         selectedCity === 'Toutes' || job.location === selectedCity;
 
-      // 5. Département
+      // 6. Département
       const matchDepartment =
         selectedDepartment === 'Tous' ||
         job.location.includes(`(${selectedDepartment})`) ||
         (selectedDepartment === '75' && job.location.toLowerCase().includes('paris'));
 
-      return matchSearch && matchCategory && matchContract && matchCity && matchDepartment;
+      return matchSearch && matchLocation && matchCategory && matchContract && matchCity && matchDepartment;
     });
-  }, [initialJobs, searchTerm, selectedCategory, selectedContract, selectedCity, selectedDepartment]);
+  }, [initialJobs, searchTerm, locationTerm, selectedCategory, selectedContract, selectedCity, selectedDepartment]);
 
   // Tri des offres filtrées
   const sortedJobs = useMemo(() => {
@@ -169,6 +215,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
   // Nombre de filtres actifs
   const activeFiltersCount =
     (searchTerm.trim() ? 1 : 0) +
+    (locationTerm.trim() ? 1 : 0) +
     (selectedCategory !== 'Tous' ? 1 : 0) +
     (selectedContract !== 'Tous' ? 1 : 0) +
     (selectedDepartment !== 'Tous' ? 1 : 0) +
@@ -176,6 +223,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
 
   const resetAllFilters = () => {
     setSearchTerm('');
+    setLocationTerm('');
     setSelectedCategory('Tous');
     setSelectedContract('Tous');
     setSelectedDepartment('Tous');
@@ -213,7 +261,7 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700 p-1 text-xs rounded-full hover:bg-slate-200 transition"
+                className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700 p-1 text-xs rounded-full hover:bg-slate-200 transition cursor-pointer"
                 title="Effacer la recherche"
               >
                 ✕
@@ -262,6 +310,96 @@ export default function JobList({ initialJobs = [] }: JobListProps) {
           </button>
 
         </div>
+
+        {/* Pilules de filtres actifs (notamment pour la recherche Hero métier + localisation) */}
+        {activeFiltersCount > 0 && (
+          <div className="flex flex-wrap items-center gap-2 pt-1 pb-1 border-t border-slate-100">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Filtres actifs ({activeFiltersCount}) :
+            </span>
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rhtt-violet-50 text-rhtt-violet-800 border border-rhtt-violet-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Métier : <strong>{searchTerm}</strong></span>
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="hover:text-rhtt-violet-950 p-0.5 rounded-full hover:bg-rhtt-violet-100 transition cursor-pointer"
+                  title="Effacer le filtre métier"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {locationTerm && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-rhtt-orange-800 border border-orange-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Localisation : <strong>{locationTerm}</strong></span>
+                <button
+                  type="button"
+                  onClick={() => setLocationTerm('')}
+                  className="hover:text-orange-950 p-0.5 rounded-full hover:bg-orange-100 transition cursor-pointer"
+                  title="Effacer le filtre localisation"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {selectedCategory !== 'Tous' && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Secteur : {selectedCategory}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('Tous')}
+                  className="hover:text-slate-900 p-0.5 rounded-full hover:bg-slate-200 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {selectedDepartment !== 'Tous' && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Dpt : {selectedDepartment}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDepartment('Tous')}
+                  className="hover:text-slate-900 p-0.5 rounded-full hover:bg-slate-200 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {selectedCity !== 'Toutes' && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Ville : {selectedCity}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCity('Toutes')}
+                  className="hover:text-slate-900 p-0.5 rounded-full hover:bg-slate-200 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {selectedContract !== 'Tous' && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-xs font-bold shadow-2xs">
+                <span>Contrat : {selectedContract}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedContract('Tous')}
+                  className="hover:text-slate-900 p-0.5 rounded-full hover:bg-slate-200 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={resetAllFilters}
+              className="text-xs text-slate-500 hover:text-slate-800 font-semibold underline underline-offset-2 ml-1 cursor-pointer"
+            >
+              Réinitialiser tous les filtres
+            </button>
+          </div>
+        )}
 
         {/* Suggestions rapides de mots-clés */}
         <div className="flex flex-wrap items-center gap-2 text-xs">

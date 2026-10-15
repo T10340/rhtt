@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import FullscreenHero from '@/components/FullscreenHero';
 import HeroSection from '@/components/HeroSection';
 import JobList from '@/components/JobList';
 import Footer from '@/components/Footer';
@@ -14,7 +15,10 @@ export default async function HomePage() {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Header />
 
-      {/* 1. NOUVEAU HERO SECTION CONFORME AUX MOCKUPS (MOBILE-FIRST) */}
+      {/* 1. SECTION HERO EN PLEINE PAGE AVEC IMAGE DE FOND, TEXTE ET BOUTON */}
+      <FullscreenHero />
+
+      {/* 2. ESPACE RÉACTIVITÉ ENTREPRISES & SIMULATEUR RH */}
       <HeroSection />
 
       {/* 2. DOUBLE ACCÈS CIBLÉ (CANDIDATS VS CLIENTS) */}

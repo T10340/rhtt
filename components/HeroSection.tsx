@@ -43,12 +43,12 @@ export default function HeroSection() {
                             </div>
                         </div>
 
-                        {/* 2. Titre Principal H1 */}
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black tracking-tight text-slate-900 leading-[1.12]">
+                        {/* 2. Titre H2 */}
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black tracking-tight text-slate-900 leading-[1.12]">
                             Trouvez les talents qui font avancer vos équipes en{' '}
                             <span className="text-[#0062FF]">moins de 24h</span>
                             <span className="hidden sm:inline text-[#0062FF]">.</span>
-                        </h1>
+                        </h2>
 
                         {/* 3. Description / Sous-titre */}
                         <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl">
